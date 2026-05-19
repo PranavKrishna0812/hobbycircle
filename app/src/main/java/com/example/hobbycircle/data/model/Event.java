@@ -17,6 +17,7 @@ public class Event {
     private List<String> joinedUserIds;
     private String imageUrl;
     private long updatedAtMillis;
+    private int attendeeLimit; // 0 means no limit
 
     public Event() {
         this.id = "";
@@ -31,6 +32,7 @@ public class Event {
         this.joinedUserIds = new ArrayList<>();
         this.imageUrl = "";
         this.updatedAtMillis = 0L;
+        this.attendeeLimit = 0;
     }
 
     public Event(String id,
@@ -173,5 +175,13 @@ public class Event {
 
     public void setUpdatedAtMillis(long updatedAtMillis) {
         this.updatedAtMillis = Math.max(0L, updatedAtMillis);
+    }
+
+    public int getAttendeeLimit() {
+        return attendeeLimit;
+    }
+
+    public void setAttendeeLimit(int attendeeLimit) {
+        this.attendeeLimit = Math.max(0, attendeeLimit);
     }
 }

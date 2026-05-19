@@ -54,6 +54,8 @@ public class CreateEventActivity extends BaseDrawerActivity {
     private TextInputEditText etDescription;
     private TextInputLayout tilHobbyTag;
     private TextInputEditText etHobbyId;
+    private TextInputLayout tilAttendeeLimit;
+    private TextInputEditText etAttendeeLimit;
 
     private MaterialCardView cardDatePicker;
     private TextView tvSelectedDate;
@@ -187,6 +189,8 @@ public class CreateEventActivity extends BaseDrawerActivity {
         etDescription = findViewById(R.id.etDescription);
         tilHobbyTag = findViewById(R.id.tilHobbyTag);
         etHobbyId = findViewById(R.id.etHobbyId);
+        tilAttendeeLimit = findViewById(R.id.tilAttendeeLimit);
+        etAttendeeLimit = findViewById(R.id.etAttendeeLimit);
 
         cardDatePicker = findViewById(R.id.cardDatePicker);
         tvSelectedDate = findViewById(R.id.tvSelectedDate);
@@ -337,6 +341,11 @@ public class CreateEventActivity extends BaseDrawerActivity {
         etDescription.setText(event.getDescription());
         etHobbyId.setText(event.getHobbyId());
         etLocation.setText(event.getLocation());
+        if (event.getAttendeeLimit() > 0) {
+            etAttendeeLimit.setText(String.valueOf(event.getAttendeeLimit()));
+        } else {
+            etAttendeeLimit.setText("");
+        }
         selectedMapQuery = safe(event.getMapQuery());
         selectedEventTimeMillis = event.getEventTimeMillis();
         existingImageUrl = safe(event.getImageUrl());
@@ -488,6 +497,13 @@ public class CreateEventActivity extends BaseDrawerActivity {
             String description = safe(etDescription.getText() != null ? etDescription.getText().toString() : "");
             String hobbyId = safe(etHobbyId.getText() != null ? etHobbyId.getText().toString() : "");
             String location = safe(etLocation.getText() != null ? etLocation.getText().toString() : "");
+            String limitStr = safe(etAttendeeLimit.getText() != null ? etAttendeeLimit.getText().toString() : "");
+            int attendeeLimit = 0;
+            if (!limitStr.isEmpty()) {
+                try {
+                    attendeeLimit = Integer.parseInt(limitStr);
+                } catch (Exception ignored) {}
+            }
             String mapQuery = safe(selectedMapQuery);
 
             boolean hasError = false;
@@ -555,6 +571,7 @@ public class CreateEventActivity extends BaseDrawerActivity {
                 event.setDateTime(selectedEventTimeMillis);
                 event.setCreatorId(userId);
                 event.setCreatorName(preferenceManager.getUserName());
+                event.setAttendeeLimit(attendeeLimit);
                 if (selectedImageBytes == null && !existingImageUrl.isEmpty()) {
                     event.setImageUrl(existingImageUrl);
                 }
@@ -571,6 +588,7 @@ public class CreateEventActivity extends BaseDrawerActivity {
                 event.setDateTime(selectedEventTimeMillis);
                 event.setCreatorId(userId);
                 event.setCreatorName(preferenceManager.getUserName());
+                event.setAttendeeLimit(attendeeLimit);
                 event.setJoinedUserIds(new ArrayList<>());
                 if (!existingImageUrl.isEmpty()) {
                     event.setImageUrl(existingImageUrl);

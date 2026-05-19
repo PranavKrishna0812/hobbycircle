@@ -155,6 +155,10 @@ public class EventDetailActivity extends AppCompatActivity {
                 new NotificationHelper(this).cancelEventReminder(eventId);
                 Toast.makeText(this, "Left event successfully.", Toast.LENGTH_SHORT).show();
             } else {
+                if (currentEvent.getAttendeeLimit() > 0 && participants != null && participants.size() >= currentEvent.getAttendeeLimit()) {
+                    Toast.makeText(this, "This event has reached its maximum capacity of " + currentEvent.getAttendeeLimit() + " participants.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 eventViewModel.joinEvent(eventId, currentUserId, currentEvent);
                 new NotificationHelper(this).scheduleEventReminder(
                         eventId,
@@ -207,7 +211,11 @@ public class EventDetailActivity extends AppCompatActivity {
 
         List<String> participants = event.getJoinedUserIds();
         int count = participants != null ? participants.size() : 0;
-        chipAttendees.setText(String.format(Locale.getDefault(), "%d going", count));
+        if (event.getAttendeeLimit() > 0) {
+            chipAttendees.setText(String.format(Locale.getDefault(), "%d / %d going", count, event.getAttendeeLimit()));
+        } else {
+            chipAttendees.setText(String.format(Locale.getDefault(), "%d going", count));
+        }
 
         boolean joined = participants != null && participants.contains(currentUserId);
         if (joined) {
