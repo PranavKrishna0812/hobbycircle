@@ -110,7 +110,11 @@ public class EventRepository {
         if (imageBytes != null && imageBytes.length > 0) {
             uploadCoverThen(event, imageBytes,
                     () -> persistCreate(event, callback),
-                    message -> callback.onError(safe(message)));
+                    message -> {
+                        // Fallback: Clear image URL and create event anyway
+                        event.setImageUrl("");
+                        persistCreate(event, callback);
+                    });
         } else {
             persistCreate(event, callback);
         }
@@ -121,7 +125,11 @@ public class EventRepository {
         if (imageBytes != null && imageBytes.length > 0) {
             uploadCoverThen(updated, imageBytes,
                     () -> persistUpdate(previous, updated, currentUserId, callback),
-                    message -> callback.onError(safe(message)));
+                    message -> {
+                        // Fallback: Clear image URL and update event anyway
+                        updated.setImageUrl("");
+                        persistUpdate(previous, updated, currentUserId, callback);
+                    });
         } else {
             persistUpdate(previous, updated, currentUserId, callback);
         }
