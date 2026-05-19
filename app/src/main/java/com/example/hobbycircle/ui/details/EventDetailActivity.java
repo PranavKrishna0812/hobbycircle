@@ -48,6 +48,8 @@ public class EventDetailActivity extends AppCompatActivity {
     private MaterialButton btnJoinLeave;
     private MaterialButton btnEdit;
     private MaterialButton btnDelete;
+    private MaterialButton btnChat;
+    private MaterialButton btnViewChats;
 
     private EventViewModel eventViewModel;
     private PreferenceManager preferenceManager;
@@ -83,6 +85,8 @@ public class EventDetailActivity extends AppCompatActivity {
         btnJoinLeave = findViewById(R.id.btnJoinLeave);
         btnEdit = findViewById(R.id.btnEdit);
         btnDelete = findViewById(R.id.btnDelete);
+        btnChat = findViewById(R.id.btnChat);
+        btnViewChats = findViewById(R.id.btnViewChats);
 
         setSupportActionBar(toolbarDetail);
         if (getSupportActionBar() != null) {
@@ -172,6 +176,38 @@ public class EventDetailActivity extends AppCompatActivity {
 
         llLocationContainer.setOnClickListener(v -> openMap());
 
+        btnChat.setOnClickListener(v -> {
+            if (currentUserId.isEmpty()) {
+                Toast.makeText(this, R.string.error_complete_profile, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (currentEvent == null) {
+                Toast.makeText(this, "Event details not loaded yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(this, com.example.hobbycircle.ui.chat.ChatActivity.class);
+            intent.putExtra(Constants.EXTRA_EVENT_ID, currentEvent.getId());
+            intent.putExtra(Constants.EXTRA_EVENT_TITLE, currentEvent.getTitle());
+            intent.putExtra(Constants.EXTRA_USER_ID, currentUserId);
+            intent.putExtra(Constants.EXTRA_USER_NAME, preferenceManager.getUserName());
+            intent.putExtra(Constants.EXTRA_ORGANISER_ID, currentEvent.getCreatedByUserId());
+            intent.putExtra(Constants.EXTRA_ORGANISER_NAME, currentEvent.getCreatorName().isEmpty() ? "Organizer" : currentEvent.getCreatorName());
+            startActivity(intent);
+        });
+
+        btnViewChats.setOnClickListener(v -> {
+            if (currentEvent == null) {
+                Toast.makeText(this, "Event details not loaded yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(this, com.example.hobbycircle.ui.chat.EventChatsActivity.class);
+            intent.putExtra(Constants.EXTRA_EVENT_ID, currentEvent.getId());
+            intent.putExtra(Constants.EXTRA_EVENT_TITLE, currentEvent.getTitle());
+            startActivity(intent);
+        });
+
         btnDelete.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Event")
@@ -237,6 +273,16 @@ public class EventDetailActivity extends AppCompatActivity {
         boolean canManage = canManageEvent(event);
         btnDelete.setVisibility(canManage ? View.VISIBLE : View.GONE);
         btnEdit.setVisibility(canManage ? View.VISIBLE : View.GONE);
+
+        if (canManage) {
+            btnJoinLeave.setVisibility(View.GONE);
+            btnChat.setVisibility(View.GONE);
+            btnViewChats.setVisibility(View.VISIBLE);
+        } else {
+            btnJoinLeave.setVisibility(View.VISIBLE);
+            btnChat.setVisibility(View.VISIBLE);
+            btnViewChats.setVisibility(View.GONE);
+        }
     }
 
     private boolean canManageEvent(Event event) {

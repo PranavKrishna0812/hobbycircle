@@ -21,6 +21,10 @@ public final class Constants {
     public static final String EXTRA_EVENT_TITLE = "extra_event_title";
     public static final String EXTRA_EVENT_TIME = "extra_event_time";
     public static final String EXTRA_EVENT_LOCATION = "extra_event_location";
+    public static final String EXTRA_USER_ID = "extra_user_id";
+    public static final String EXTRA_USER_NAME = "extra_user_name";
+    public static final String EXTRA_ORGANISER_ID = "extra_organiser_id";
+    public static final String EXTRA_ORGANISER_NAME = "extra_organiser_name";
 
     public static final String NOTIFICATION_CHANNEL_ID = "hobby_circle_reminders";
     public static final String NOTIFICATION_CHANNEL_NAME = "HobbyCircle Reminders";

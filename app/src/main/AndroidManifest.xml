@@ -57,6 +57,14 @@
             android:exported="false"
             android:theme="@style/Theme.HobbyCircle" />
         <activity
+            android:name=".ui.chat.ChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.chat.EventChatsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
             android:name=".ui.auth.AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.HobbyCircle">

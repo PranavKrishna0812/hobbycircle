@@ -290,6 +290,30 @@
             app:cornerRadius="12dp" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewChats"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/detail_bottom_bar_button_height"
+            android:layout_weight="1"
+            android:backgroundTint="@color/hc_accent"
+            android:text="Inquiries / Chats"
+            android:textColor="@color/colorWhite"
+            android:visibility="gone"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChat"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/detail_bottom_bar_button_height"
+            android:layout_marginStart="12dp"
+            android:text="Chat"
+            android:textColor="@color/hc_accent"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/hc_accent"
+            app:icon="@drawable/ic_people"
+            app:iconTint="@color/hc_accent" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEdit"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
