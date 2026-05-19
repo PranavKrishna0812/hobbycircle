@@ -6,9 +6,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,49 +19,78 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
 import com.example.hobbycircle.ui.details.EventDetailActivity;
+import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.ui.events.EventAdapter;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.example.hobbycircle.ui.BaseDrawerActivity;
+public class NearbyEventsActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
-public class NearbyEventsActivity extends BaseDrawerActivity implements EventAdapter.OnEventClickListener {
-
-    private EditText etSearchEvents;
+    private Toolbar toolbarNearby;
+    private EditText etSearch;
+    private ImageView ivClearSearch;
+    private ChipGroup cgHobbies;
     private RecyclerView rvNearbyEvents;
-    private View tvNearbyEmpty;
+    private View emptyState;
+    private ExtendedFloatingActionButton fabCreate;
 
     private EventViewModel eventViewModel;
     private PreferenceManager preferenceManager;
     private EventAdapter adapter;
 
     private List<Event> fullEvents = new ArrayList<>();
-    private String searchQuery = "";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_nearby_events);
 
         preferenceManager = new PreferenceManager(this);
 
-        etSearchEvents = findViewById(R.id.etSearchEvents);
-        rvNearbyEvents = findViewById(R.id.rvNearbyEvents);
-        tvNearbyEmpty = findViewById(R.id.tvNearbyEmpty);
+        initViews();
+        setupRecycler();
+        setupViewModel();
+        setupListeners();
 
+        eventViewModel.loadEvents();
+    }
+
+    private void initViews() {
+        toolbarNearby = findViewById(R.id.toolbarNearby);
+        etSearch = findViewById(R.id.etSearch);
+        ivClearSearch = findViewById(R.id.ivClearSearch);
+        cgHobbies = findViewById(R.id.cgHobbies);
+        rvNearbyEvents = findViewById(R.id.rvNearbyEvents);
+        emptyState = findViewById(R.id.emptyState);
+        fabCreate = findViewById(R.id.fabCreate);
+
+        setSupportActionBar(toolbarNearby);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+    }
+
+    private void setupRecycler() {
         rvNearbyEvents.setLayoutManager(new LinearLayoutManager(this));
         adapter = new EventAdapter(new ArrayList<>(), this);
         rvNearbyEvents.setAdapter(adapter);
+    }
 
+    private void setupViewModel() {
         eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
         eventViewModel.getEventsLiveData().observe(this, events -> {
             fullEvents = events != null ? events : new ArrayList<>();
-            applyNearbyAndSearch();
+            applyFilters();
         });
 
         eventViewModel.getMessageLiveData().observe(this, msg -> {
@@ -66,58 +98,90 @@ public class NearbyEventsActivity extends BaseDrawerActivity implements EventAda
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        etSearchEvents.addTextChangedListener(new TextWatcher() {
+    private void setupListeners() {
+        toolbarNearby.setNavigationOnClickListener(v -> finish());
+
+        fabCreate.setOnClickListener(v ->
+                startActivity(new Intent(this, CreateEventActivity.class)));
+
+        ivClearSearch.setOnClickListener(v -> {
+            etSearch.setText("");
+            applyFilters();
+        });
+
+        etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchQuery = s != null ? s.toString().trim() : "";
-                applyNearbyAndSearch();
+                String q = s != null ? s.toString().trim() : "";
+                ivClearSearch.setVisibility(q.isEmpty() ? View.GONE : View.VISIBLE);
+                applyFilters();
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {}
         });
 
-        eventViewModel.loadEvents();
+        cgHobbies.setOnCheckedChangeListener((group, checkedId) -> applyFilters());
     }
 
-    /**
-     * Nearby = not created by me, not joined; optional match on profile location.
-     * Search = filters title, description, hobbyId, location (case-insensitive).
-     */
-    private void applyNearbyAndSearch() {
+    private void applyFilters() {
         String myId = preferenceManager.getUserId();
         String myLoc = safe(preferenceManager.getUserLocation()).toLowerCase(Locale.getDefault());
-        String q = searchQuery.toLowerCase(Locale.getDefault());
+        String query = etSearch.getText().toString().trim().toLowerCase(Locale.getDefault());
 
-        List<Event> out = new ArrayList<>();
-        for (Event e : fullEvents) {
-            if (e == null) continue;
-
-            if (safe(e.getCreatedByUserId()).equals(myId)) continue;
-
-            List<String> joined = e.getJoinedUserIds() != null ? e.getJoinedUserIds() : new ArrayList<>();
-            if (joined.contains(myId)) continue;
-
-            String locCombined = (safe(e.getLocation()) + " " + safe(e.getMapQuery())).toLowerCase(Locale.getDefault());
-            if (!myLoc.isEmpty() && !locCombined.contains(myLoc)) continue;
-
-            if (!q.isEmpty()) {
-                String hay = (safe(e.getTitle()) + " "
-                        + safe(e.getDescription()) + " "
-                        + safe(e.getHobbyId()) + " "
-                        + locCombined).toLowerCase(Locale.getDefault());
-                if (!hay.contains(q)) continue;
+        // Get selected hobby name from chip
+        int checkedChipId = cgHobbies.getCheckedChipId();
+        String selectedHobby = "";
+        if (checkedChipId != View.NO_ID) {
+            Chip chip = findViewById(checkedChipId);
+            if (chip != null) {
+                selectedHobby = chip.getText().toString().trim();
             }
-
-            out.add(e);
         }
 
-        adapter.submitList(out);
-        tvNearbyEmpty.setVisibility(out.isEmpty() ? View.VISIBLE : View.GONE);
+        List<Event> filtered = new ArrayList<>();
+        for (Event event : fullEvents) {
+            if (event == null) continue;
+
+            // Do not show my own events
+            if (safe(event.getCreatedByUserId()).equals(myId)) continue;
+
+            // Do not show events I have already joined
+            List<String> joined = event.getJoinedUserIds() != null ? event.getJoinedUserIds() : new ArrayList<>();
+            if (joined.contains(myId)) continue;
+
+            // Filter by location (if user location is set)
+            String locCombined = (safe(event.getLocation()) + " " + safe(event.getMapQuery())).toLowerCase(Locale.getDefault());
+            if (!myLoc.isEmpty() && !locCombined.contains(myLoc)) continue;
+
+            // Filter by hobby (if selected and not "All")
+            if (!selectedHobby.isEmpty() && !selectedHobby.equalsIgnoreCase("All")) {
+                if (!safe(event.getHobbyId()).equalsIgnoreCase(selectedHobby)) {
+                    continue;
+                }
+            }
+
+            // Filter by search query
+            if (!query.isEmpty()) {
+                String searchableText = (safe(event.getTitle()) + " "
+                        + safe(event.getDescription()) + " "
+                        + safe(event.getHobbyId()) + " "
+                        + locCombined).toLowerCase(Locale.getDefault());
+                if (!searchableText.contains(query)) {
+                    continue;
+                }
+            }
+
+            filtered.add(event);
+        }
+
+        adapter.submitList(filtered);
+        emptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -136,16 +200,5 @@ public class NearbyEventsActivity extends BaseDrawerActivity implements EventAda
 
     private String safe(String s) {
         return s == null ? "" : s.trim();
-    }
-
-    @Override
-    protected int contentLayoutResId() {
-        return R.layout.activity_nearby_events;
-    }
-
-    @androidx.annotation.NonNull
-    @Override
-    protected String getDefaultTitle() {
-        return "Nearby Events";
     }
 }

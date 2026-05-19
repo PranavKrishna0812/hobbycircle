@@ -1,92 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nearbyRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/hc_bg"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/screen_padding_horizontal"
-    android:paddingTop="@dimen/screen_padding_vertical"
-    android:paddingRight="@dimen/screen_padding_horizontal"
-    android:paddingBottom="@dimen/screen_padding_vertical">
+    android:background="@color/hc_bg">
 
-    <!-- Title -->
-    <TextView
+    <!-- AppBar & Search Panel -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarNearby"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nearby Events"
-        android:textColor="@color/hc_text_primary"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+        android:background="@color/colorNavy"
+        app:elevation="0dp">
 
-    <!-- Subtitle -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Discover meetups near your area"
-        android:textColor="@color/hc_text_secondary"
-        android:textSize="14sp" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarNearby"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorNavy"
+            app:title="Discover Events"
+            app:titleTextColor="@color/colorWhite" />
 
-    <!-- Search bar with rounded pill style -->
-    <EditText
-        android:id="@+id/etSearchEvents"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_input"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="10dp"
-        android:hint="Search title, hobby, location…"
-        android:imeOptions="actionSearch"
-        android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@color/hc_text_primary"
-        android:textColorHint="@color/hc_text_secondary"
-        android:textSize="14sp"
-        app:drawableTint="@color/hc_text_secondary" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorNavy"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
 
-    <!-- Events list -->
+            <!-- Search Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="@dimen/search_bar_radius"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="12dp"
+                        android:contentDescription="Search Icon"
+                        android:src="@drawable/ic_search"
+                        app:tint="@color/hc_text_secondary" />
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="Search events..."
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:textColor="@color/colorNavy"
+                        android:textColorHint="@color/hc_text_secondary"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:id="@+id/ivClearSearch"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Clear Search"
+                        android:src="@drawable/ic_close"
+                        android:visibility="gone"
+                        app:tint="@color/hc_text_secondary" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Hobbies Filter Row -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fillViewport="false"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cgHobbies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAll"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="All" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipSports"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sports" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipMusic"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Music" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipArt"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Art" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipFood"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Food" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipTech"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tech" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipOutdoors"
+                        style="@style/NearbyEventChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Outdoors" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Events List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNearbyEvents"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="14dp"
-        android:layout_weight="1"
-        android:clipToPadding="false" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="12dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- Empty state -->
-    <LinearLayout
-        android:id="@+id/tvNearbyEmpty"
+    <!-- Empty State -->
+    <FrameLayout
+        android:id="@+id/emptyState"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:contentDescription="No Events Visual"
+                android:src="@drawable/ic_event_empty"
+                app:tint="@color/colorTextMuted" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="No events match your filters."
+                android:textColor="@color/hc_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Try a different hobby or location"
+                android:textColor="@color/hc_text_secondary"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- Create Event Floating Action Button -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabCreate"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:visibility="gone">
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/hc_accent"
+        android:text="Create Event"
+        android:textColor="@color/colorWhite"
+        app:icon="@drawable/ic_add"
+        app:iconTint="@color/colorWhite" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🧭"
-            android:textSize="48sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="No events match your filters."
-            android:textColor="@color/hc_text_secondary"
-            android:textSize="14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Try a different hobby or location"
-            android:textColor="@color/hc_text_secondary"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
