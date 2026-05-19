@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1024049501071",
+    "project_id": "hobbycircle-49094",
+    "storage_bucket": "hobbycircle-49094.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024049501071:android:9689c076066285aa6b71fa",
+        "android_client_info": {
+          "package_name": "com.example.hobbycircle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1024049501071-03cjchg1d8hj34n7gvuaesqr3iucmlq0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hobbycircle",
+            "certificate_hash": "c340200c311adb3a6c2ff0f2ec006ca07ef85cfb"
+          }
+        },
+        {
+          "client_id": "1024049501071-o837beliuksglq4ksfg5rb539qhajtju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCx0Iz8qIsXUkhg0wb2_fZEg0iN1q86KC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1024049501071-o837beliuksglq4ksfg5rb539qhajtju.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

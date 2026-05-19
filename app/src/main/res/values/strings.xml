@@ -1,0 +1,116 @@
+<resources>
+    <string name="app_name">Hobby Circle</string>
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_FROM_GOOGLE_SERVICES</string>
+
+    <string-array name="admin_emails">
+        <!-- <item>admin@example.com</item> -->
+    </string-array>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_nearby_events">Nearby Events</string>
+    <string name="nav_accepted_events">My Joined Events</string>
+    <string name="nav_create_event">Create Event</string>
+    <string name="nav_manage_events">Manage All Events</string>
+
+    <!-- Roles -->
+    <string name="role_admin">Administrator</string>
+    <string name="role_user">Member</string>
+
+    <!-- Admin -->
+    <string name="admin_events_title">Manage Events</string>
+    <string name="admin_events_subtitle">Edit or delete any meetup</string>
+    <string name="admin_events_empty">No events found.</string>
+
+    <!-- Events -->
+    <string name="edit_meetup">Edit Meetup</string>
+    <string name="save_meetup">Save Changes</string>
+    <string name="create_meetup">Create Meetup</string>
+    <string name="btn_edit_event">Edit Meetup</string>
+    <string name="btn_delete_event_admin">Delete Meetup (Admin)</string>
+    <string name="btn_change_cover_image">Change Cover Image</string>
+    <string name="event_updated">Event updated successfully.</string>
+    <string name="not_authorized">You are not allowed to modify this event.</string>
+
+    <!-- Messages -->
+    <string name="msg_event_created">Event created successfully.</string>
+    <string name="msg_event_deleted">Event deleted successfully.</string>
+    <string name="msg_joined_event">Joined event successfully.</string>
+    <string name="msg_left_event">Left event successfully.</string>
+    <string name="msg_profile_saved">Profile saved successfully.</string>
+
+    <!-- Errors -->
+    <string name="error_name_email_required">Name and email are required.</string>
+    <string name="error_complete_profile">Please complete your profile first.</string>
+    <string name="error_invalid_event">Invalid event.</string>
+    <string name="error_event_id_missing">Event ID is missing.</string>
+    <string name="error_event_not_loaded">Event not loaded yet.</string>
+    <string name="error_no_map_location">No map location available.</string>
+    <string name="error_no_map_app">No map app found.</string>
+    <string name="error_open_maps">Unable to open maps.</string>
+    <string name="error_fill_required_fields">Please fill all required fields.</string>
+    <string name="error_select_datetime">Please select a valid date/time.</string>
+    <string name="error_select_future_datetime">Please select a valid future date/time.</string>
+    <string name="error_event_loading">Event is still loading.</string>
+    <string name="error_save_event">Failed to save event.</string>
+    <string name="error_read_image">Failed to read image.</string>
+    <string name="error_deleting_event">Deleting event…</string>
+
+    <!-- Event list -->
+    <string name="event_cover_content_description">Event cover photo</string>
+    <string name="event_location_format">Location: %1$s</string>
+    <string name="event_time_format">Time: %1$s</string>
+
+    <!-- Event list placeholders -->
+    <string name="event_untitled">Untitled Event</string>
+    <string name="event_no_description">No description available.</string>
+    <string name="event_location_na">Location: N/A</string>
+    <string name="event_time_not_set">Time: Not set</string>
+    <string name="event_participants_count">Participants: %1$d</string>
+    <string name="event_detail_untitled">Untitled Event</string>
+    <string name="event_detail_no_description">No description</string>
+    <string name="event_detail_hobby">Hobby: %1$s</string>
+    <string name="event_detail_hobby_general">General</string>
+    <string name="event_detail_location">Location: %1$s</string>
+    <string name="event_detail_location_na">N/A</string>
+    <string name="event_detail_time">Time: %1$s</string>
+    <string name="event_detail_time_not_set">Not set</string>
+    <string name="event_detail_participants">Participants: %1$d</string>
+
+    <!-- Notifications -->
+    <string name="notification_reminder_title_default">Upcoming Hobby Event</string>
+    <string name="notification_reminder_body_location">Location: %1$s</string>
+    <string name="notification_reminder_body_time">Your event is coming up soon.</string>
+    <string name="notification_reminder_body_default">You have an upcoming hobby event.</string>
+    <string name="notification_channel_description">Reminders for joined hobby events.</string>
+
+    <!-- Map picker -->
+    <string name="map_select_location">Please select a location</string>
+    <string name="map_loading_address">Loading address…</string>
+    <string name="map_unknown_location">Unknown Location</string>
+    <string name="map_error_resolving">Error resolving location</string>
+    <string name="map_permission_denied">Location permission denied</string>
+    <string name="map_location_not_found">Location not found</string>
+    <string name="map_search_error">Error searching location</string>
+
+    <!-- Home -->
+    <string name="welcome_user">Welcome, %1$s</string>
+    <string name="welcome_default">Welcome</string>
+
+    <!-- Nearby -->
+    <string name="nearby_events_title">Nearby Events</string>
+    <string name="nearby_events_subtitle">Discover meetups near your area</string>
+    <string name="nearby_events_empty">No events match your filters.</string>
+    <string name="nearby_events_empty_hint">Try a different hobby or location</string>
+
+    <!-- Accepted events -->
+    <string name="accepted_events_title">My Joined Events</string>
+    <string name="accepted_events_subtitle">Meetups you have joined</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Your Profile</string>
+
+    <!-- Auth -->
+    <string name="error_generic">Something went wrong.</string>
+</resources>

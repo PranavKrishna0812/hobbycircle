@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/eventDetailScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hc_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="32dp"
+        android:paddingTop="32dp"
+        android:paddingRight="32dp"
+        android:paddingBottom="42dp">
+
+        <!-- Event Image (Hero) -->
+        <ImageView
+            android:id="@+id/ivEventHeroImage"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            android:background="@color/hc_surface"
+            android:visibility="gone" />
+
+        <!-- Event title -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event title"
+            android:textColor="@color/hc_text_primary"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Event description"
+            android:textColor="@color/hc_text_secondary"
+            android:textSize="15sp" />
+
+        <!-- Hobby tag pill -->
+        <TextView
+            android:id="@+id/tvHobby"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_tag"
+            android:paddingLeft="12dp"
+            android:paddingTop="6dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:text="Hobby"
+            android:textColor="@color/hc_primary_light"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Detail card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:text="Location"
+                android:textColor="@color/hc_text_primary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:text="Time"
+                android:textColor="@color/hc_text_primary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvParticipants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:text="Participants: 0"
+                android:textColor="@color/hc_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnJoin"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_primary_button"
+                android:text="Join"
+                android:textAllCaps="false"
+                android:textColor="@color/hc_button_text_on_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnLeave"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/ripple_outline_button"
+                android:text="Leave"
+                android:textAllCaps="false"
+                android:textColor="@color/hc_primary_light"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnOpenMap"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/ripple_outline_button"
+            android:text="Open in Google Maps"
+            android:textAllCaps="false"
+            android:textColor="@color/hc_primary_light"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnEditEvent"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/ripple_outline_button"
+            android:text="@string/btn_edit_event"
+            android:textAllCaps="false"
+            android:textColor="@color/hc_primary_light"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
+        <!-- Delete Event Button (Hidden by default, shown for creator or admin) -->
+        <Button
+            android:id="@+id/btnDeleteEvent"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/ripple_outline_button"
+            android:text="Delete Meetup"
+            android:textAllCaps="false"
+            android:textColor="@color/hc_accent"
+            app:strokeColor="@color/hc_accent"
+            style="?attr/materialButtonOutlinedStyle"
+            android:textSize="15sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>

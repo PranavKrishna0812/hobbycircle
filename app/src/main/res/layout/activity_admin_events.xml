@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/adminEventsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hc_bg"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/screen_padding_horizontal"
+    android:paddingTop="@dimen/screen_padding_vertical"
+    android:paddingRight="@dimen/screen_padding_horizontal"
+    android:paddingBottom="@dimen/screen_padding_vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/admin_events_title"
+        android:textColor="@color/hc_text_primary"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/admin_events_subtitle"
+        android:textColor="@color/hc_text_secondary"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/etSearchEvents"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_input"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="10dp"
+        android:hint="Search all events…"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="@color/hc_text_primary"
+        android:textColorHint="@color/hc_text_secondary"
+        android:textSize="14sp"
+        app:drawableTint="@color/hc_text_secondary" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAdminEvents"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="14dp"
+        android:layout_weight="1"
+        android:clipToPadding="false" />
+
+    <TextView
+        android:id="@+id/tvAdminEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="No events found."
+        android:textColor="@color/hc_text_secondary"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+</LinearLayout>

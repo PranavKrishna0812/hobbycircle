@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="HobbyCircle"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.HobbyCircle">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
+        <receiver
+            android:name=".receivers.ReminderReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.details.EventDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.events.CreateEventActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.events.MapPickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.home.HomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.auth.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.home.AcceptedEventsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.home.NearbyEventsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.admin.AdminEventsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HobbyCircle" />
+        <activity
+            android:name=".ui.auth.AuthActivity"
+            android:exported="true"
+            android:theme="@style/Theme.HobbyCircle">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

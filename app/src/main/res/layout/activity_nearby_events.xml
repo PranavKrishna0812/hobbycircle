@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nearbyRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hc_bg"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/screen_padding_horizontal"
+    android:paddingTop="@dimen/screen_padding_vertical"
+    android:paddingRight="@dimen/screen_padding_horizontal"
+    android:paddingBottom="@dimen/screen_padding_vertical">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nearby Events"
+        android:textColor="@color/hc_text_primary"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Discover meetups near your area"
+        android:textColor="@color/hc_text_secondary"
+        android:textSize="14sp" />
+
+    <!-- Search bar with rounded pill style -->
+    <EditText
+        android:id="@+id/etSearchEvents"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_input"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="10dp"
+        android:hint="Search title, hobby, location…"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="@color/hc_text_primary"
+        android:textColorHint="@color/hc_text_secondary"
+        android:textSize="14sp"
+        app:drawableTint="@color/hc_text_secondary" />
+
+    <!-- Events list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNearbyEvents"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="14dp"
+        android:layout_weight="1"
+        android:clipToPadding="false" />
+
+    <!-- Empty state -->
+    <LinearLayout
+        android:id="@+id/tvNearbyEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🧭"
+            android:textSize="48sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="No events match your filters."
+            android:textColor="@color/hc_text_secondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Try a different hobby or location"
+            android:textColor="@color/hc_text_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</LinearLayout>

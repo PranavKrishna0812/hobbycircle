@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.HobbyCircle" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorOnSecondary">@color/colorOnPrimary</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="android:windowBackground">@color/colorSurface</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/colorSurface</item>
+        <item name="materialButtonStyle">@style/Widget.HobbyCircle.Button.Primary</item>
+        <item name="toolbarStyle">@style/Widget.HobbyCircle.Toolbar</item>
+        <item name="android:fontFamily">@font/dm_sans_regular</item>
+    </style>
+
+    <style name="Widget.HobbyCircle.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <style name="Widget.HobbyCircle.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+    </style>
+
+    <style name="Widget.HobbyCircle.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="titleTextColor">@color/colorWhite</item>
+        <item name="titleTextAppearance">@style/TextAppearance.HobbyCircle.Toolbar</item>
+    </style>
+
+    <style name="TextAppearance.HobbyCircle.Toolbar" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+    <style name="TextAppearance.HobbyCircle.Headline" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
+    </style>
+
+    <style name="TextAppearance.HobbyCircle.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/dm_sans_regular</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+    </style>
+
+    <style name="Widget.HobbyCircle.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardBackgroundColor">@color/colorSurface</item>
+        <item name="contentPadding">0dp</item>
+    </style>
+
+    <style name="Widget.HobbyCircle.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="android:fontFamily">@font/dm_sans_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="chipCornerRadius">@dimen/chip_radius</item>
+        <item name="chipBackgroundColor">@color/colorAccentSoft</item>
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="Widget.HobbyCircle.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxStrokeColor">@color/colorDivider</item>
+        <item name="hintTextColor">@color/colorTextSecondary</item>
+        <item name="android:fontFamily">@font/dm_sans_regular</item>
+    </style>
+
+</resources>

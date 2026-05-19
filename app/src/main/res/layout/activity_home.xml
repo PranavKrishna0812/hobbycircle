@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/hc_bg">
+
+        <LinearLayout
+            android:id="@+id/homeRoot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/screen_padding_horizontal"
+            android:paddingTop="58dp"
+            android:paddingRight="@dimen/screen_padding_horizontal"
+            android:paddingBottom="@dimen/screen_padding_vertical">
+
+            <!-- Top bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btnMenu"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Open menu"
+                    android:src="@android:drawable/ic_menu_more"
+                    app:tint="@color/hc_primary_light" />
+
+                <TextView
+                    android:id="@+id/tvWelcome"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="Welcome"
+                    android:textColor="@color/hc_text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Section title -->
+            <TextView
+                android:id="@+id/tvSectionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:letterSpacing="0.06"
+                android:text="ACCEPTED EVENTS"
+                android:textAllCaps="true"
+                android:textColor="@color/hc_text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Meetups you have joined."
+                android:textColor="@color/hc_text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Events list area with glassmorphism card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="14dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="@dimen/content_padding">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvEventsHome"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingBottom="78dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- FAB -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabCreateEvent"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/fab_margin_end"
+            android:layout_marginBottom="@dimen/fab_margin_bottom"
+            android:contentDescription="Create event"
+            android:src="@android:drawable/ic_input_add"
+            app:backgroundTint="@color/hc_primary"
+            app:elevation="8dp"
+            app:fabCustomSize="56dp"
+            app:maxImageSize="24dp"
+            app:shapeAppearanceOverlay="@null"
+            app:tint="@color/hc_button_text_on_primary" />
+    </FrameLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/hc_nav_bg"
+        app:itemIconTint="@color/hc_primary_light"
+        app:itemTextColor="@color/hc_text_primary"
+        app:menu="@menu/menu_home_drawer" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

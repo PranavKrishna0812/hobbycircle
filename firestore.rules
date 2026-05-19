@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isEventCreator(eventId) {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/events/$(eventId)).data.createdByUserId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.createdByUserId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isEventCreator(eventId)
+        || isAdmin()
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinedUserIds', 'updatedAt'])
+      );
+      allow delete: if isSignedIn() && (isEventCreator(eventId) || isAdmin());
+    }
+  }
+}
