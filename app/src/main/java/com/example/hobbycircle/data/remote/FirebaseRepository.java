@@ -217,7 +217,9 @@ public class FirebaseRepository {
                         } else {
                             // Fallback to appspot.com bucket if the first one fails
                             try {
-                                StorageReference fallbackRef = FirebaseStorage.getInstance("gs://hobbycircle-49094.appspot.com")
+                                String projectId = FirebaseStorage.getInstance().getApp().getOptions().getProjectId();
+                                String fallbackBucket = "gs://" + (projectId != null ? projectId : "hobbycircle-49094") + ".appspot.com";
+                                StorageReference fallbackRef = FirebaseStorage.getInstance(fallbackBucket)
                                         .getReference()
                                         .child(StoragePaths.eventCover(eventId));
 
