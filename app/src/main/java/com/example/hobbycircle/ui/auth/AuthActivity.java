@@ -79,7 +79,7 @@ public class AuthActivity extends AppCompatActivity {
                     }
                     firebaseAuthWithGoogle(account.getIdToken());
                 } catch (ApiException e) {
-                    showToast("Google sign-in failed: " + safe(e.getMessage()));
+                    showToast("Google sign-in failed (Status Code " + e.getStatusCode() + "): " + safe(e.getMessage()));
                 } catch (Exception e) {
                     showToast("Unexpected error: " + safe(e.getMessage()));
                 }
@@ -88,6 +88,8 @@ public class AuthActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        printSignatureSha1();
 
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -105,6 +107,32 @@ public class AuthActivity extends AppCompatActivity {
         setupGoogleSignIn();
         setupClicks();
         updateAuthModeUi();
+    }
+
+    private void printSignatureSha1() {
+        try {
+            android.content.pm.PackageInfo info = getPackageManager().getPackageInfo(
+                    getPackageName(),
+                    android.content.pm.PackageManager.GET_SIGNATURES);
+            for (android.content.pm.Signature signature : info.signatures) {
+                java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-1");
+                md.update(signature.toByteArray());
+                byte[] digest = md.digest();
+                StringBuilder toPrint = new StringBuilder();
+                for (int i = 0; i < digest.length; i++) {
+                    if (i > 0) toPrint.append(":");
+                    int b = digest[i] & 0xff;
+                    String hex = Integer.toHexString(b).toUpperCase();
+                    if (hex.length() == 1) toPrint.append("0");
+                    toPrint.append(hex);
+                }
+                android.util.Log.d("HobbyCircleSHA1", "=================================================");
+                android.util.Log.d("HobbyCircleSHA1", "ACTUAL RUNNING SIGNING SHA-1: " + toPrint.toString());
+                android.util.Log.d("HobbyCircleSHA1", "=================================================");
+            }
+        } catch (Exception e) {
+            android.util.Log.e("HobbyCircleSHA1", "Failed to get signature SHA-1", e);
+        }
     }
 
     private void initViews() {
