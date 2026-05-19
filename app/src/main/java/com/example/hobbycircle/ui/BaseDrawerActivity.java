@@ -22,6 +22,8 @@ import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.utils.DrawerMenuHelper;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public abstract class BaseDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -111,6 +113,49 @@ public abstract class BaseDrawerActivity extends AppCompatActivity
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateNavigationHeader();
+    }
+
+    protected void updateNavigationHeader() {
+        if (navigationView != null) {
+            android.view.View headerView = navigationView.getHeaderView(0);
+            if (headerView != null) {
+                TextView tvUserInitial = headerView.findViewById(R.id.tvUserInitial);
+                TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
+                TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
+
+                PreferenceManager preferenceManager = new PreferenceManager(this);
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                String name = "";
+                String email = "";
+
+                if (currentUser != null) {
+                    name = currentUser.getDisplayName();
+                    email = currentUser.getEmail();
+                }
+                if (name == null || name.trim().isEmpty()) {
+                    name = preferenceManager.getUserName();
+                }
+                if (email == null || email.trim().isEmpty()) {
+                    email = preferenceManager.getUserEmail();
+                }
+
+                String displayName = (name != null && !name.trim().isEmpty()) ? name.trim() : "User";
+                String displayEmail = (email != null && !email.trim().isEmpty()) ? email.trim() : "user@example.com";
+
+                if (tvHeaderName != null) tvHeaderName.setText(displayName);
+                if (tvHeaderEmail != null) tvHeaderEmail.setText(displayEmail);
+                if (tvUserInitial != null && !displayName.isEmpty()) {
+                    tvUserInitial.setText(String.valueOf(displayName.charAt(0)).toUpperCase());
+                }
+            }
         }
     }
 }
