@@ -91,6 +91,14 @@ public class CreateEventActivity extends BaseDrawerActivity {
     private Event editingEvent = null;
     private boolean coverUploadReady = true;
 
+    private static final String PRESET_SPORTS = "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=600&auto=format&fit=crop";
+    private static final String PRESET_MUSIC = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=600&auto=format&fit=crop";
+    private static final String PRESET_GAMING = "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop";
+    private static final String PRESET_CREATIVE = "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=600&auto=format&fit=crop";
+    private static final String PRESET_READING = "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=600&auto=format&fit=crop";
+    private static final String PRESET_SOCIAL = "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=600&auto=format&fit=crop";
+    private static final String PRESET_NATURE = "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=600&auto=format&fit=crop";
+
     private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
             uri -> {
@@ -199,6 +207,40 @@ public class CreateEventActivity extends BaseDrawerActivity {
 
         btnCancel = findViewById(R.id.btnCancel);
         btnCreateEvent = findViewById(R.id.btnCreateEvent);
+
+        // Bind preset drawables dynamically
+        MaterialCardView presetSports = findViewById(R.id.presetSports);
+        MaterialCardView presetMusic = findViewById(R.id.presetMusic);
+        MaterialCardView presetGaming = findViewById(R.id.presetGaming);
+        MaterialCardView presetCreative = findViewById(R.id.presetCreative);
+        MaterialCardView presetReading = findViewById(R.id.presetReading);
+        MaterialCardView presetSocial = findViewById(R.id.presetSocial);
+        MaterialCardView presetNature = findViewById(R.id.presetNature);
+
+        ImageView ivPresetSports = findViewById(R.id.ivPresetSports);
+        ImageView ivPresetMusic = findViewById(R.id.ivPresetMusic);
+        ImageView ivPresetGaming = findViewById(R.id.ivPresetGaming);
+        ImageView ivPresetCreative = findViewById(R.id.ivPresetCreative);
+        ImageView ivPresetReading = findViewById(R.id.ivPresetReading);
+        ImageView ivPresetSocial = findViewById(R.id.ivPresetSocial);
+        ImageView ivPresetNature = findViewById(R.id.ivPresetNature);
+
+        // Load with Glide for stunning performance
+        Glide.with(this).load(PRESET_SPORTS).into(ivPresetSports);
+        Glide.with(this).load(PRESET_MUSIC).into(ivPresetMusic);
+        Glide.with(this).load(PRESET_GAMING).into(ivPresetGaming);
+        Glide.with(this).load(PRESET_CREATIVE).into(ivPresetCreative);
+        Glide.with(this).load(PRESET_READING).into(ivPresetReading);
+        Glide.with(this).load(PRESET_SOCIAL).into(ivPresetSocial);
+        Glide.with(this).load(PRESET_NATURE).into(ivPresetNature);
+
+        presetSports.setOnClickListener(v -> selectPresetCover(PRESET_SPORTS));
+        presetMusic.setOnClickListener(v -> selectPresetCover(PRESET_MUSIC));
+        presetGaming.setOnClickListener(v -> selectPresetCover(PRESET_GAMING));
+        presetCreative.setOnClickListener(v -> selectPresetCover(PRESET_CREATIVE));
+        presetReading.setOnClickListener(v -> selectPresetCover(PRESET_READING));
+        presetSocial.setOnClickListener(v -> selectPresetCover(PRESET_SOCIAL));
+        presetNature.setOnClickListener(v -> selectPresetCover(PRESET_NATURE));
     }
 
     private void setupViewModel() {
@@ -275,6 +317,19 @@ public class CreateEventActivity extends BaseDrawerActivity {
         etDescription.addTextChangedListener(stepperWatcher);
         etHobbyId.addTextChangedListener(stepperWatcher);
         etLocation.addTextChangedListener(stepperWatcher);
+    }
+
+    private void selectPresetCover(String url) {
+        selectedImageBytes = null;
+        existingImageUrl = url;
+        coverUploadReady = true;
+
+        layoutPickerDefault.setVisibility(View.GONE);
+        layoutPickerPreview.setVisibility(View.VISIBLE);
+        Glide.with(this).load(url).into(ivCoverPreview);
+
+        updateSubmitEnabled();
+        updateProgress();
     }
 
     private void populateForm(Event event) {

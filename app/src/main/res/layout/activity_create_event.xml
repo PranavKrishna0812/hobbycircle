@@ -445,6 +445,290 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="OR CHOOSE A PREMIUM PRESET"
+                        android:textColor="@color/hc_text_secondary"
+                        android:textSize="11sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/layoutPresets"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingBottom="4dp">
+
+                            <!-- Preset 1: Sports -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetSports"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetSports"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Sports"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Preset 2: Music -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetMusic"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetMusic"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Music"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Preset 3: Gaming -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetGaming"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetGaming"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Gaming"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Preset 4: Creative -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetCreative"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetCreative"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Creative"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Preset 5: Reading -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetReading"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetReading"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Reading"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Preset 6: Social -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetSocial"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetSocial"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Social"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Preset 7: Nature -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/presetNature"
+                                android:layout_width="88dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="@color/colorLightGray"
+                                app:strokeWidth="1dp">
+                                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                                    <ImageView
+                                        android:id="@+id/ivPresetNature"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:scaleType="centerCrop"
+                                        android:src="@drawable/bg_common" />
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:background="#66000000" />
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:layout_marginBottom="6dp"
+                                        android:gravity="center"
+                                        android:text="Nature"
+                                        android:textColor="@color/colorWhite"
+                                        android:textSize="11sp"
+                                        android:fontFamily="sans-serif-medium" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
