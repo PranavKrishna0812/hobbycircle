@@ -215,10 +215,37 @@ public class FirebaseRepository {
                             String url = task.getResult().toString();
                             patchEventImageUrl(eventId, url, callback);
                         } else {
-                            String msg = task.getException() != null
-                                    ? task.getException().getMessage()
-                                    : "Unknown upload error";
-                            callback.onError(msg);
+                            // Fallback to appspot.com bucket if the first one fails
+                            try {
+                                StorageReference fallbackRef = FirebaseStorage.getInstance("gs://hobbycircle-49094.appspot.com")
+                                        .getReference()
+                                        .child(StoragePaths.eventCover(eventId));
+
+                                fallbackRef.putBytes(imageBytes)
+                                        .continueWithTask(fallbackTask -> {
+                                            if (!fallbackTask.isSuccessful()) {
+                                                Exception e = fallbackTask.getException();
+                                                throw e != null ? e : new Exception("Fallback upload failed.");
+                                            }
+                                            return fallbackRef.getDownloadUrl();
+                                        })
+                                        .addOnCompleteListener(fallbackTask -> {
+                                            if (fallbackTask.isSuccessful() && fallbackTask.getResult() != null) {
+                                                String url = fallbackTask.getResult().toString();
+                                                patchEventImageUrl(eventId, url, callback);
+                                            } else {
+                                                String msg = fallbackTask.getException() != null
+                                                        ? fallbackTask.getException().getMessage()
+                                                        : "Unknown upload error";
+                                                callback.onError("Upload failed: " + msg);
+                                            }
+                                        });
+                            } catch (Exception ex) {
+                                String msg = task.getException() != null
+                                        ? task.getException().getMessage()
+                                        : "Unknown upload error";
+                                callback.onError("Upload failed: " + msg);
+                            }
                         }
                     });
         } catch (Exception e) {
