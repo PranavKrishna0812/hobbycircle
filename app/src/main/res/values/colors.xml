@@ -36,4 +36,5 @@
     <color name="hc_accent">#E94560</color>
     <color name="colorTextMuted">#A0AEC0</color>
     <color name="colorLightGray">#E5E7EB</color>
+    <color name="black_overlay">#99000000</color>
 </resources>

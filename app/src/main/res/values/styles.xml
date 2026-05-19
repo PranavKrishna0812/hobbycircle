@@ -24,4 +24,10 @@
         <item name="chipIconVisible">false</item>
         <item name="closeIconVisible">false</item>
     </style>
+
+    <style name="ExpandedTitleTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
 </resources>

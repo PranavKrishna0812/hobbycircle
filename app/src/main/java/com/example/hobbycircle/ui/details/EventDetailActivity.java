@@ -4,43 +4,49 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.widget.Button;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.View;
-
-import com.bumptech.glide.Glide;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
 import com.example.hobbycircle.utils.Constants;
+import com.example.hobbycircle.utils.NotificationHelper;
 import com.example.hobbycircle.utils.PreferenceManager;
-import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.viewmodel.EventViewModel;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class EventDetailActivity extends AppCompatActivity {
 
-    private TextView tvTitle;
-    private TextView tvDescription;
-    private TextView tvHobby;
-    private TextView tvLocation;
-    private TextView tvTime;
-    private TextView tvParticipants;
-    private Button btnJoin;
-    private Button btnLeave;
-    private Button btnOpenMap;
-    private Button btnEditEvent;
-    private Button btnDeleteEvent;
-    private ImageView ivEventHeroImage;
+    private CollapsingToolbarLayout collapsingToolbar;
+    private Toolbar toolbarDetail;
+    private ImageView ivEventHero;
+    private TextView tvDetailTitle;
+    private Chip chipDetailHobby;
+    private Chip chipAttendees;
+    private TextView tvDetailDate;
+    private TextView tvDetailLocation;
+    private LinearLayout llLocationContainer;
+    private TextView tvDetailCreator;
+    private TextView tvDetailDescription;
+    private MaterialButton btnJoinLeave;
+    private MaterialButton btnDelete;
 
     private EventViewModel eventViewModel;
     private PreferenceManager preferenceManager;
@@ -62,18 +68,25 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        tvTitle = findViewById(R.id.tvTitle);
-        tvDescription = findViewById(R.id.tvDescription);
-        tvHobby = findViewById(R.id.tvHobby);
-        tvLocation = findViewById(R.id.tvLocation);
-        tvTime = findViewById(R.id.tvTime);
-        tvParticipants = findViewById(R.id.tvParticipants);
-        btnJoin = findViewById(R.id.btnJoin);
-        btnLeave = findViewById(R.id.btnLeave);
-        btnOpenMap = findViewById(R.id.btnOpenMap);
-        btnEditEvent = findViewById(R.id.btnEditEvent);
-        btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
-        ivEventHeroImage = findViewById(R.id.ivEventHeroImage);
+        collapsingToolbar = findViewById(R.id.collapsingToolbar);
+        toolbarDetail = findViewById(R.id.toolbarDetail);
+        ivEventHero = findViewById(R.id.ivEventHero);
+        tvDetailTitle = findViewById(R.id.tvDetailTitle);
+        chipDetailHobby = findViewById(R.id.chipDetailHobby);
+        chipAttendees = findViewById(R.id.chipAttendees);
+        tvDetailDate = findViewById(R.id.tvDetailDate);
+        tvDetailLocation = findViewById(R.id.tvDetailLocation);
+        llLocationContainer = findViewById(R.id.llLocationContainer);
+        tvDetailCreator = findViewById(R.id.tvDetailCreator);
+        tvDetailDescription = findViewById(R.id.tvDetailDescription);
+        btnJoinLeave = findViewById(R.id.btnJoinLeave);
+        btnDelete = findViewById(R.id.btnDelete);
+
+        setSupportActionBar(toolbarDetail);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     private void initData() {
@@ -115,7 +128,9 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void setupActions() {
-        btnJoin.setOnClickListener(v -> {
+        toolbarDetail.setNavigationOnClickListener(v -> onBackPressed());
+
+        btnJoinLeave.setOnClickListener(v -> {
             if (currentUserId.isEmpty()) {
                 Toast.makeText(this, R.string.error_complete_profile, Toast.LENGTH_SHORT).show();
                 return;
@@ -124,80 +139,83 @@ public class EventDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.error_invalid_event, Toast.LENGTH_SHORT).show();
                 return;
             }
-            eventViewModel.joinEvent(eventId, currentUserId, currentEvent);
+
+            if (currentEvent == null) {
+                Toast.makeText(this, "Event details not loaded yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            List<String> participants = currentEvent.getJoinedUserIds();
+            boolean joined = participants != null && participants.contains(currentUserId);
+
+            if (joined) {
+                eventViewModel.leaveEvent(eventId, currentUserId);
+                new NotificationHelper(this).cancelEventReminder(eventId);
+                Toast.makeText(this, "Left event successfully.", Toast.LENGTH_SHORT).show();
+            } else {
+                eventViewModel.joinEvent(eventId, currentUserId, currentEvent);
+                new NotificationHelper(this).scheduleEventReminder(
+                        eventId,
+                        currentEvent.getTitle(),
+                        currentEvent.getLocation(),
+                        currentEvent.getEventTimeMillis()
+                );
+                Toast.makeText(this, "Joined event successfully! Reminder scheduled 1 hour before.", Toast.LENGTH_SHORT).show();
+            }
         });
 
-        btnLeave.setOnClickListener(v -> {
-            if (currentUserId.isEmpty()) {
-                Toast.makeText(this, R.string.error_complete_profile, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (eventId.isEmpty()) {
-                Toast.makeText(this, R.string.error_invalid_event, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            eventViewModel.leaveEvent(eventId, currentUserId);
-        });
+        llLocationContainer.setOnClickListener(v -> openMap());
 
-        btnOpenMap.setOnClickListener(v -> openMap());
-
-        btnEditEvent.setOnClickListener(v -> {
-            if (currentEvent == null || eventId.isEmpty()) {
-                Toast.makeText(this, "Event not loaded yet.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!canManageEvent(currentEvent)) {
-                Toast.makeText(this, R.string.not_authorized, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Intent intent = new Intent(this, CreateEventActivity.class);
-            intent.putExtra(Constants.EXTRA_EVENT_ID, eventId);
-            intent.putExtra(Constants.EXTRA_EDIT_EVENT, true);
-            startActivity(intent);
-        });
-
-        btnDeleteEvent.setOnClickListener(v -> {
-            if (!eventId.isEmpty()) {
-                eventViewModel.deleteEvent(eventId);
-                Toast.makeText(this, "Deleting event...", Toast.LENGTH_SHORT).show();
-                finish();
-            }
+        btnDelete.setOnClickListener(v -> {
+            new MaterialAlertDialogBuilder(this)
+                .setTitle("Delete Event")
+                .setMessage("Are you sure you want to delete this event?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    if (!eventId.isEmpty()) {
+                        eventViewModel.deleteEvent(eventId);
+                        Toast.makeText(this, "Event deleted successfully.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
         });
     }
 
     private void bindEvent(Event event) {
-        tvTitle.setText(nonEmpty(event.getTitle(), "Untitled Event"));
-        tvDescription.setText(nonEmpty(event.getDescription(), "No description"));
-        tvHobby.setText(String.format(Locale.getDefault(), "Hobby: %s", nonEmpty(event.getHobbyId(), "General")));
-        tvLocation.setText(String.format(Locale.getDefault(), "Location: %s", nonEmpty(event.getLocation(), "N/A")));
-        tvTime.setText(String.format(Locale.getDefault(), "Time: %s", formatTime(event.getEventTimeMillis())));
+        // Expand title text in collapsing toolbar layout
+        collapsingToolbar.setTitle(nonEmpty(event.getTitle(), "Untitled Event"));
+        
+        tvDetailTitle.setText(nonEmpty(event.getTitle(), "Untitled Event"));
+        tvDetailDescription.setText(nonEmpty(event.getDescription(), "No description available."));
+        chipDetailHobby.setText(nonEmpty(event.getHobbyId(), "General"));
+        tvDetailLocation.setText(nonEmpty(event.getLocation(), "N/A"));
+        tvDetailDate.setText(formatTime(event.getEventTimeMillis()));
+        tvDetailCreator.setText(nonEmpty(event.getCreatedByUserId(), "Organizer"));
 
         List<String> participants = event.getJoinedUserIds();
         int count = participants != null ? participants.size() : 0;
-        tvParticipants.setText(String.format(Locale.getDefault(), "Participants: %d", count));
+        chipAttendees.setText(String.format(Locale.getDefault(), "%d going", count));
 
         boolean joined = participants != null && participants.contains(currentUserId);
-        btnJoin.setEnabled(!joined);
-        btnLeave.setEnabled(joined);
-
-        // Image Handling
-        String imageUrl = safe(event.getImageUrl());
-        if (!imageUrl.isEmpty()) {
-            ivEventHeroImage.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                 .load(imageUrl)
-                 .placeholder(android.R.color.transparent)
-                 .into(ivEventHeroImage);
+        if (joined) {
+            btnJoinLeave.setText("Leave Event");
+            btnJoinLeave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.hc_text_secondary)));
         } else {
-            ivEventHeroImage.setVisibility(View.GONE);
+            btnJoinLeave.setText("Join Event");
+            btnJoinLeave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.hc_accent)));
         }
+
+        // Image Handling via Glide
+        String imageUrl = safe(event.getImageUrl());
+        Glide.with(this)
+             .load(!imageUrl.isEmpty() ? imageUrl : R.drawable.ic_event_empty)
+             .placeholder(R.drawable.ic_event_empty)
+             .error(R.drawable.ic_event_empty)
+             .into(ivEventHero);
 
         boolean canManage = canManageEvent(event);
-        btnEditEvent.setVisibility(canManage ? View.VISIBLE : View.GONE);
-        btnDeleteEvent.setVisibility(canManage ? View.VISIBLE : View.GONE);
-        if (preferenceManager.isAdmin()) {
-            btnDeleteEvent.setText(R.string.btn_delete_event_admin);
-        }
+        btnDelete.setVisibility(canManage ? View.VISIBLE : View.GONE);
     }
 
     private boolean canManageEvent(Event event) {
@@ -228,7 +246,6 @@ public class EventDetailActivity extends AppCompatActivity {
         try {
             Uri gmmIntentUri;
             if (query.matches("-?\\d+\\.\\d+,-?\\d+\\.\\d+")) {
-                // If it's pure coordinates, use them directly as the query to drop a pin
                 gmmIntentUri = Uri.parse("geo:" + query + "?q=" + query);
             } else {
                 gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(query));

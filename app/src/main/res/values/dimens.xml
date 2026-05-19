@@ -76,4 +76,13 @@
     <dimen name="auth_button_text_size">15sp</dimen>
     <dimen name="auth_toggle_margin_top">16dp</dimen>
     <dimen name="search_bar_radius">24dp</dimen>
+    
+    <!-- Detail layout dimensions -->
+    <dimen name="detail_app_bar_height">260dp</dimen>
+    <dimen name="detail_image_overlay_height">120dp</dimen>
+    <dimen name="detail_chip_text_size">12sp</dimen>
+    <dimen name="detail_title_text_size">22sp</dimen>
+    <dimen name="detail_description_text_size">15sp</dimen>
+    <dimen name="detail_bottom_bar_button_height">52dp</dimen>
+    <dimen name="detail_content_padding">20dp</dimen>
 </resources>
