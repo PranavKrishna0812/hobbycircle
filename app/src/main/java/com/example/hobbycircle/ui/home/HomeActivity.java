@@ -2,13 +2,15 @@ package com.example.hobbycircle.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageButton;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,6 +31,8 @@ import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +44,12 @@ public class HomeActivity extends AppCompatActivity implements
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    private ImageButton btnMenu;
-    private TextView tvWelcome;
-    private RecyclerView rvEventsHome;
+    private Toolbar toolbarHome;
+    private TextView tvGreeting;
+    private TextView tvEventCount;
+    private RecyclerView rvJoinedEvents;
+    private View emptyState;
+    private Button btnBrowseNearby;
     private FloatingActionButton fabCreateEvent;
 
     private PreferenceManager preferenceManager;
@@ -62,7 +69,7 @@ public class HomeActivity extends AppCompatActivity implements
         setupRecycler();
         setupViewModel();
         setupClicks();
-        renderHeader();
+        renderHeaderAndGreeting();
 
         eventViewModel.loadEvents();
     }
@@ -70,19 +77,28 @@ public class HomeActivity extends AppCompatActivity implements
     private void initViews() {
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigationView);
-        btnMenu = findViewById(R.id.btnMenu);
-        tvWelcome = findViewById(R.id.tvWelcome);
-        rvEventsHome = findViewById(R.id.rvEventsHome);
+        toolbarHome = findViewById(R.id.toolbarHome);
+        tvGreeting = findViewById(R.id.tvGreeting);
+        tvEventCount = findViewById(R.id.tvEventCount);
+        rvJoinedEvents = findViewById(R.id.rvJoinedEvents);
+        emptyState = findViewById(R.id.emptyState);
+        btnBrowseNearby = findViewById(R.id.btnBrowseNearby);
         fabCreateEvent = findViewById(R.id.fabCreateEvent);
+
+        setSupportActionBar(toolbarHome);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_more);
+        }
 
         navigationView.setNavigationItemSelectedListener(this);
         DrawerMenuHelper.applyRoleVisibility(navigationView, preferenceManager.isAdmin());
     }
 
     private void setupRecycler() {
-        rvEventsHome.setLayoutManager(new LinearLayoutManager(this));
+        rvJoinedEvents.setLayoutManager(new LinearLayoutManager(this));
         eventAdapter = new EventAdapter(new ArrayList<>(), this);
-        rvEventsHome.setAdapter(eventAdapter);
+        rvJoinedEvents.setAdapter(eventAdapter);
     }
 
     private void setupViewModel() {
@@ -101,17 +117,48 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     private void setupClicks() {
-        btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        toolbarHome.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
 
         fabCreateEvent.setOnClickListener(v ->
                 startActivity(new Intent(this, CreateEventActivity.class)));
+
+        btnBrowseNearby.setOnClickListener(v ->
+                startActivity(new Intent(this, NearbyEventsActivity.class)));
     }
 
-    private void renderHeader() {
-        String name = preferenceManager.getUserName();
-        tvWelcome.setText(name.isEmpty()
-                ? getString(R.string.welcome_default)
-                : getString(R.string.welcome_user, name));
+    private void renderHeaderAndGreeting() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String name = "";
+        String email = "";
+
+        if (currentUser != null) {
+            name = currentUser.getDisplayName();
+            email = currentUser.getEmail();
+        }
+        if (name == null || name.trim().isEmpty()) {
+            name = preferenceManager.getUserName();
+        }
+        if (email == null || email.trim().isEmpty()) {
+            email = preferenceManager.getUserEmail();
+        }
+
+        String displayName = (name != null && !name.trim().isEmpty()) ? name.trim() : "User";
+        String displayEmail = (email != null && !email.trim().isEmpty()) ? email.trim() : "user@example.com";
+
+        tvGreeting.setText(String.format("Good morning, %s 👋", displayName));
+
+        View headerView = navigationView.getHeaderView(0);
+        if (headerView != null) {
+            TextView tvUserInitial = headerView.findViewById(R.id.tvUserInitial);
+            TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
+            TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
+
+            if (tvHeaderName != null) tvHeaderName.setText(displayName);
+            if (tvHeaderEmail != null) tvHeaderEmail.setText(displayEmail);
+            if (tvUserInitial != null && !displayName.isEmpty()) {
+                tvUserInitial.setText(String.valueOf(displayName.charAt(0)).toUpperCase());
+            }
+        }
     }
 
     /** Home feed: events current user has accepted (joined). */
@@ -125,6 +172,25 @@ public class HomeActivity extends AppCompatActivity implements
             List<String> joined = event.getJoinedUserIds() != null ? event.getJoinedUserIds() : new ArrayList<>();
             if (joined.contains(currentUserId)) {
                 filtered.add(event);
+            }
+        }
+
+        int count = filtered.size();
+        if (tvEventCount != null) {
+            if (count == 1) {
+                tvEventCount.setText("You have 1 upcoming event");
+            } else {
+                tvEventCount.setText(String.format(Locale.getDefault(), "You have %d upcoming events", count));
+            }
+        }
+
+        if (emptyState != null && rvJoinedEvents != null) {
+            if (count == 0) {
+                emptyState.setVisibility(View.VISIBLE);
+                rvJoinedEvents.setVisibility(View.GONE);
+            } else {
+                emptyState.setVisibility(View.GONE);
+                rvJoinedEvents.setVisibility(View.VISIBLE);
             }
         }
 
@@ -167,7 +233,7 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        renderHeader();
+        renderHeaderAndGreeting();
         DrawerMenuHelper.applyRoleVisibility(navigationView, preferenceManager.isAdmin());
         eventViewModel.loadEvents();
     }

@@ -5,114 +5,142 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/hc_bg">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/homeRoot"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/screen_padding_horizontal"
-            android:paddingTop="58dp"
-            android:paddingRight="@dimen/screen_padding_horizontal"
-            android:paddingBottom="@dimen/screen_padding_vertical">
+            android:layout_height="wrap_content"
+            android:background="@color/colorNavy"
+            app:elevation="0dp">
 
-            <!-- Top bar -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbarHome"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorNavy"
+                app:titleTextColor="@color/colorWhite" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/btnMenu"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Open menu"
-                    android:src="@android:drawable/ic_menu_more"
-                    app:tint="@color/hc_primary_light" />
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvWelcome"
-                    android:layout_width="0dp"
+                    android:id="@+id/tvGreeting"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="Welcome"
-                    android:textColor="@color/hc_text_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:fontFamily="@font/poppins_semibold"
+                    android:paddingStart="@dimen/greeting_padding_start"
+                    android:paddingTop="@dimen/greeting_padding_top"
+                    android:paddingEnd="@dimen/greeting_padding_start"
+                    android:paddingBottom="@dimen/greeting_padding_bottom"
+                    android:text="Good morning 👋"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/greeting_text_size" />
+
+                <TextView
+                    android:id="@+id/tvEventCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/event_count_padding_start"
+                    android:paddingEnd="@dimen/event_count_padding_start"
+                    android:paddingBottom="@dimen/event_count_padding_bottom"
+                    android:text="You have 0 upcoming events"
+                    android:textColor="@color/colorTextMuted"
+                    android:textSize="@dimen/event_count_text_size" />
+
             </LinearLayout>
 
-            <!-- Section title -->
-            <TextView
-                android:id="@+id/tvSectionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:letterSpacing="0.06"
-                android:text="ACCEPTED EVENTS"
-                android:textAllCaps="true"
-                android:textColor="@color/hc_text_secondary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <!-- Subtitle -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Meetups you have joined."
-                android:textColor="@color/hc_text_secondary"
-                android:textSize="13sp" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvJoinedEvents"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/hc_surface"
+            android:clipToPadding="false"
+            android:padding="@dimen/recycler_padding"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-            <!-- Events list area with glassmorphism card -->
+        <FrameLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="14dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_card"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:padding="@dimen/content_padding">
+                android:padding="@dimen/empty_state_padding">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvEventsHome"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:paddingBottom="78dp" />
+                <ImageView
+                    android:layout_width="@dimen/empty_image_size"
+                    android:layout_height="@dimen/empty_image_size"
+                    android:layout_marginBottom="@dimen/empty_image_margin_bottom"
+                    android:contentDescription="No events"
+                    android:src="@drawable/ic_event_empty" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="No events yet"
+                    android:textColor="@color/colorNavy"
+                    android:textSize="@dimen/empty_title_text_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:gravity="center"
+                    android:text="Explore events happening near you"
+                    android:textColor="@color/hc_text_secondary"
+                    android:textSize="@dimen/empty_subtitle_text_size" />
+
+                <Button
+                    android:id="@+id/btnBrowseNearby"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/browse_button_margin_top"
+                    android:backgroundTint="@color/hc_accent"
+                    android:paddingHorizontal="@dimen/browse_button_padding_h"
+                    android:paddingVertical="@dimen/browse_button_padding_v"
+                    android:text="Browse Nearby"
+                    android:textColor="@color/colorWhite"
+                    app:cornerRadius="@dimen/browse_button_corner_radius" />
+
             </LinearLayout>
-        </LinearLayout>
 
-        <!-- FAB -->
+        </FrameLayout>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabCreateEvent"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/fab_margin_end"
-            android:layout_marginBottom="@dimen/fab_margin_bottom"
-            android:contentDescription="Create event"
-            android:src="@android:drawable/ic_input_add"
-            app:backgroundTint="@color/hc_primary"
-            app:elevation="8dp"
-            app:fabCustomSize="56dp"
-            app:maxImageSize="24dp"
-            app:shapeAppearanceOverlay="@null"
-            app:tint="@color/hc_button_text_on_primary" />
-    </FrameLayout>
+            android:layout_margin="@dimen/fab_margin_all"
+            android:contentDescription="Create Event"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/hc_accent"
+            app:tint="@color/colorWhite" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
-        android:layout_width="280dp"
+        android:layout_width="@dimen/nav_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/hc_nav_bg"
+        app:headerLayout="@layout/nav_header_home"
         app:itemIconTint="@color/hc_primary_light"
         app:itemTextColor="@color/hc_text_primary"
         app:menu="@menu/menu_home_drawer" />

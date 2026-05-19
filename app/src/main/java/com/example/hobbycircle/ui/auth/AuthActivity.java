@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,10 +28,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -36,18 +41,28 @@ import java.util.Map;
 
 public class AuthActivity extends AppCompatActivity {
 
+    private TextInputLayout tilName;
+    private TextInputLayout tilEmail;
+    private TextInputLayout tilPassword;
+    private TextInputLayout tilConfirmPassword;
+
+    private EditText etName;
     private EditText etEmail;
     private EditText etPassword;
     private EditText etConfirmPassword;
-    private Button btnLogin;
-    private Button btnRegister;
-    private Button btnGoogleSignIn;
+
+    private Button btnSignIn;
+    private Button btnGoogle;
+    private TextView tvToggleAuth;
+    private TextView tvAuthTitle;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
     private PreferenceManager preferenceManager;
     private UserRepository userRepository;
     private GoogleSignInClient googleSignInClient;
+
+    private boolean isRegisterMode = false;
 
     private final ActivityResultLauncher<Intent> googleSignInLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -89,15 +104,24 @@ public class AuthActivity extends AppCompatActivity {
         initViews();
         setupGoogleSignIn();
         setupClicks();
+        updateAuthModeUi();
     }
 
     private void initViews() {
+        tilName = findViewById(R.id.tilName);
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPassword = findViewById(R.id.tilPassword);
+        tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
+
+        etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
-        btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
+
+        btnSignIn = findViewById(R.id.btnSignIn);
+        btnGoogle = findViewById(R.id.btnGoogle);
+        tvToggleAuth = findViewById(R.id.tvToggleAuth);
+        tvAuthTitle = findViewById(R.id.tvAuthTitle);
     }
 
     private void setupGoogleSignIn() {
@@ -110,29 +134,113 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void setupClicks() {
-        btnRegister.setOnClickListener(v -> registerWithEmailPassword());
-        btnLogin.setOnClickListener(v -> loginWithEmailPassword());
-        btnGoogleSignIn.setOnClickListener(v -> startGoogleSignIn());
+        btnSignIn.setOnClickListener(v -> handleAuthSubmit());
+        btnGoogle.setOnClickListener(v -> startGoogleSignIn());
     }
 
-    private void registerWithEmailPassword() {
+    private void updateAuthModeUi() {
+        tilName.setError(null);
+        tilEmail.setError(null);
+        tilPassword.setError(null);
+        tilConfirmPassword.setError(null);
+
+        if (isRegisterMode) {
+            tvAuthTitle.setText("Create Account");
+            tilName.setVisibility(View.VISIBLE);
+            tilConfirmPassword.setVisibility(View.VISIBLE);
+            btnSignIn.setText("Create Account");
+        } else {
+            tvAuthTitle.setText("Welcome Back");
+            tilName.setVisibility(View.GONE);
+            tilConfirmPassword.setVisibility(View.GONE);
+            btnSignIn.setText("Sign In");
+        }
+
+        setupToggleAuthText();
+    }
+
+    private void setupToggleAuthText() {
+        String fullText;
+        String clickablePart;
+        if (isRegisterMode) {
+            fullText = "Already have an account? Sign In";
+            clickablePart = "Sign In";
+        } else {
+            fullText = "Don't have an account? Register";
+            clickablePart = "Register";
+        }
+
+        android.text.SpannableString spannable = new android.text.SpannableString(fullText);
+        int start = fullText.indexOf(clickablePart);
+        int end = start + clickablePart.length();
+
+        android.text.style.ClickableSpan clickableSpan = new android.text.style.ClickableSpan() {
+            @Override
+            public void onClick(@NonNull android.view.View widget) {
+                isRegisterMode = !isRegisterMode;
+                updateAuthModeUi();
+            }
+
+            @Override
+            public void updateDrawState(@NonNull android.text.TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(getResources().getColor(R.color.hc_accent));
+                ds.setUnderlineText(false);
+                ds.setFakeBoldText(true);
+            }
+        };
+
+        spannable.setSpan(clickableSpan, start, end, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvToggleAuth.setText(spannable);
+        tvToggleAuth.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+    }
+
+    private void handleAuthSubmit() {
+        tilName.setError(null);
+        tilEmail.setError(null);
+        tilPassword.setError(null);
+        tilConfirmPassword.setError(null);
+
         String email = safe(textOf(etEmail));
         String password = safe(textOf(etPassword));
-        String confirm = safe(textOf(etConfirmPassword));
+
+        boolean hasError = false;
 
         if (!isValidEmail(email)) {
-            showToast("Enter a valid email.");
-            return;
-        }
-        if (password.length() < 6) {
-            showToast("Password must be at least 6 characters.");
-            return;
-        }
-        if (!password.equals(confirm)) {
-            showToast("Password and confirm password do not match.");
-            return;
+            tilEmail.setError("Enter a valid email address");
+            hasError = true;
         }
 
+        if (password.length() < 6) {
+            tilPassword.setError("Password must be at least 6 characters");
+            hasError = true;
+        }
+
+        if (isRegisterMode) {
+            String name = safe(textOf(etName));
+            String confirm = safe(textOf(etConfirmPassword));
+
+            if (name.isEmpty()) {
+                tilName.setError("Full name is required");
+                hasError = true;
+            }
+
+            if (!password.equals(confirm)) {
+                tilConfirmPassword.setError("Passwords do not match");
+                hasError = true;
+            }
+
+            if (!hasError) {
+                registerWithEmailPassword(name, email, password);
+            }
+        } else {
+            if (!hasError) {
+                loginWithEmailPassword(email, password);
+            }
+        }
+    }
+
+    private void registerWithEmailPassword(String name, String email, String password) {
         setButtonsEnabled(false);
 
         firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -150,29 +258,24 @@ public class AuthActivity extends AppCompatActivity {
                         return;
                     }
 
-                    saveUserDocument(user, "email_password", () -> {
-                        setButtonsEnabled(true);
-                        loadRoleAndNavigate(user);
-                    }, error -> {
-                        setButtonsEnabled(true);
-                        showToast(error);
-                    });
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(name)
+                            .build();
+
+                    user.updateProfile(profileUpdates)
+                            .addOnCompleteListener(task1 -> {
+                                saveUserDocument(user, "email_password", () -> {
+                                    setButtonsEnabled(true);
+                                    loadRoleAndNavigate(user);
+                                }, error -> {
+                                    setButtonsEnabled(true);
+                                    showToast(error);
+                                });
+                            });
                 });
     }
 
-    private void loginWithEmailPassword() {
-        String email = safe(textOf(etEmail));
-        String password = safe(textOf(etPassword));
-
-        if (!isValidEmail(email)) {
-            showToast("Enter a valid email.");
-            return;
-        }
-        if (password.isEmpty()) {
-            showToast("Password is required.");
-            return;
-        }
-
+    private void loginWithEmailPassword(String email, String password) {
         setButtonsEnabled(false);
 
         firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -312,9 +415,8 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void setButtonsEnabled(boolean enabled) {
-        btnLogin.setEnabled(enabled);
-        btnRegister.setEnabled(enabled);
-        btnGoogleSignIn.setEnabled(enabled);
+        btnSignIn.setEnabled(enabled);
+        btnGoogle.setEnabled(enabled);
     }
 
     private void showToast(String message) {

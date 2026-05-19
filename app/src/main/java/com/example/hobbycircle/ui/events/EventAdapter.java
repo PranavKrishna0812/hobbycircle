@@ -61,48 +61,47 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     static class EventViewHolder extends RecyclerView.ViewHolder {
 
-        private final ImageView ivEventCover;
+        private final ImageView ivEventImage;
+        private final com.google.android.material.chip.Chip chipHobby;
         private final TextView tvEventTitle;
-        private final TextView tvEventDescription;
+        private final TextView tvEventDate;
         private final TextView tvEventLocation;
-        private final TextView tvEventTime;
-        private final TextView tvEventParticipants;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivEventCover = itemView.findViewById(R.id.ivEventCover);
+            ivEventImage = itemView.findViewById(R.id.ivEventImage);
+            chipHobby = itemView.findViewById(R.id.chipHobby);
             tvEventTitle = itemView.findViewById(R.id.tvEventTitle);
-            tvEventDescription = itemView.findViewById(R.id.tvEventDescription);
+            tvEventDate = itemView.findViewById(R.id.tvEventDate);
             tvEventLocation = itemView.findViewById(R.id.tvEventLocation);
-            tvEventTime = itemView.findViewById(R.id.tvEventTime);
-            tvEventParticipants = itemView.findViewById(R.id.tvEventParticipants);
         }
 
         void bind(Event event, OnEventClickListener listener) {
             if (event == null) {
                 bindCoverImage(null);
+                if (chipHobby != null) {
+                    chipHobby.setText("");
+                }
                 tvEventTitle.setText(itemView.getContext().getString(R.string.event_untitled));
-                tvEventDescription.setText(itemView.getContext().getString(R.string.event_no_description));
+                tvEventDate.setText(itemView.getContext().getString(R.string.event_time_not_set));
                 tvEventLocation.setText(itemView.getContext().getString(R.string.event_location_na));
-                tvEventTime.setText(itemView.getContext().getString(R.string.event_time_not_set));
-                tvEventParticipants.setText(itemView.getContext().getString(R.string.event_participants_count, 0));
                 itemView.setOnClickListener(null);
                 return;
             }
 
             bindCoverImage(event.getImageUrl());
 
+            String hobby = safe(event.getHobbyId(), "General");
             String title = safe(event.getTitle(), itemView.getContext().getString(R.string.event_untitled));
-            String description = safe(event.getDescription(), itemView.getContext().getString(R.string.event_no_description));
             String location = safe(event.getLocation(), itemView.getContext().getString(R.string.event_detail_location_na));
             String timeText = formatTime(event.getEventTimeMillis());
-            int participantCount = event.getJoinedUserIds() != null ? event.getJoinedUserIds().size() : 0;
 
+            if (chipHobby != null) {
+                chipHobby.setText(hobby);
+            }
             tvEventTitle.setText(title);
-            tvEventDescription.setText(description);
-            tvEventLocation.setText(itemView.getContext().getString(R.string.event_location_format, location));
-            tvEventTime.setText(itemView.getContext().getString(R.string.event_time_format, timeText));
-            tvEventParticipants.setText(itemView.getContext().getString(R.string.event_participants_count, participantCount));
+            tvEventDate.setText(timeText);
+            tvEventLocation.setText(location);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -112,20 +111,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
 
         private void bindCoverImage(String imageUrl) {
+            if (ivEventImage == null) return;
             if (imageUrl == null || imageUrl.trim().isEmpty()) {
-                ivEventCover.setVisibility(View.GONE);
-                Glide.with(itemView.getContext()).clear(ivEventCover);
+                ivEventImage.setImageResource(R.drawable.bg_event_cover_placeholder);
                 return;
             }
 
-            ivEventCover.setVisibility(View.VISIBLE);
             Glide.with(itemView.getContext())
                     .load(imageUrl.trim())
                     .placeholder(R.drawable.bg_event_cover_placeholder)
                     .error(R.drawable.bg_event_cover_placeholder)
                     .centerCrop()
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(ivEventCover);
+                    .into(ivEventImage);
         }
 
         private String formatTime(long eventTimeMillis) {

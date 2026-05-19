@@ -20,4 +20,59 @@
     <dimen name="content_padding">16dp</dimen>
     <dimen name="fab_margin_end">16dp</dimen>
     <dimen name="fab_margin_bottom">16dp</dimen>
+    
+    <!-- Custom dimensions for activity_home.xml and item_event.xml -->
+    <dimen name="nav_drawer_width">280dp</dimen>
+    <dimen name="header_initial_size">56dp</dimen>
+    <dimen name="header_name_text_size">18sp</dimen>
+    <dimen name="header_email_text_size">13sp</dimen>
+    <dimen name="greeting_text_size">22sp</dimen>
+    <dimen name="greeting_padding_start">16dp</dimen>
+    <dimen name="greeting_padding_bottom">20dp</dimen>
+    <dimen name="greeting_padding_top">4dp</dimen>
+    <dimen name="event_count_text_size">13sp</dimen>
+    <dimen name="event_count_padding_start">16dp</dimen>
+    <dimen name="event_count_padding_bottom">16dp</dimen>
+    <dimen name="recycler_padding">12dp</dimen>
+    <dimen name="empty_state_padding">32dp</dimen>
+    <dimen name="empty_image_size">100dp</dimen>
+    <dimen name="empty_image_margin_bottom">16dp</dimen>
+    <dimen name="empty_title_text_size">18sp</dimen>
+    <dimen name="empty_subtitle_text_size">14sp</dimen>
+    <dimen name="browse_button_padding_h">24dp</dimen>
+    <dimen name="browse_button_padding_v">12dp</dimen>
+    <dimen name="browse_button_corner_radius">12dp</dimen>
+    <dimen name="browse_button_margin_top">16dp</dimen>
+    <dimen name="fab_margin_all">16dp</dimen>
+    <dimen name="item_card_margin">8dp</dimen>
+    <dimen name="item_card_corner_radius">16dp</dimen>
+    <dimen name="item_card_elevation">2dp</dimen>
+    <dimen name="event_image_height_item">180dp</dimen>
+    <dimen name="item_content_padding_start">12dp</dimen>
+    <dimen name="item_content_padding_end">12dp</dimen>
+    <dimen name="item_content_padding_top">10dp</dimen>
+    <dimen name="item_content_padding_bottom">12dp</dimen>
+    <dimen name="chip_corner_radius_custom">50dp</dimen>
+    <dimen name="chip_text_size">11sp</dimen>
+    <dimen name="chip_height">28dp</dimen>
+    <dimen name="event_title_text_size">16sp</dimen>
+    <dimen name="event_info_margin_top">8dp</dimen>
+    <dimen name="event_info_text_size">13sp</dimen>
+    <dimen name="event_location_max_width">100dp</dimen>
+    <dimen name="info_icon_size">16dp</dimen>
+    <dimen name="info_icon_margin_start">4dp</dimen>
+    <dimen name="item_title_margin_top">6dp</dimen>
+    
+    <!-- Auth layout dimensions -->
+    <dimen name="auth_logo_margin_top">60dp</dimen>
+    <dimen name="auth_logo_size">72dp</dimen>
+    <dimen name="auth_logo_corner_radius">36dp</dimen>
+    <dimen name="auth_card_padding">28dp</dimen>
+    <dimen name="auth_button_padding_v">14dp</dimen>
+    <dimen name="auth_button_google_padding_v">12dp</dimen>
+    <dimen name="auth_title_text_size">32sp</dimen>
+    <dimen name="auth_field_margin">20dp</dimen>
+    <dimen name="auth_welcome_margin_bottom">20dp</dimen>
+    <dimen name="auth_button_text_size">15sp</dimen>
+    <dimen name="auth_toggle_margin_top">16dp</dimen>
 </resources>

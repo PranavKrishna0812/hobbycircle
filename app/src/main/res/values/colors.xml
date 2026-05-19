@@ -34,4 +34,6 @@
     <color name="hc_button_text_on_primary">#FFFFFF</color>
     <color name="hc_nav_bg">#FFFFFF</color>
     <color name="hc_accent">#E94560</color>
+    <color name="colorTextMuted">#A0AEC0</color>
+    <color name="colorLightGray">#E5E7EB</color>
 </resources>
