@@ -22,6 +22,7 @@ public class EventEntity {
     private String joinedUserIdsCsv;
     private long updatedAtMillis;
     private String imageUrl;
+    private String ratingsCsv;
 
     public EventEntity() {
         this.id = "";
@@ -36,6 +37,7 @@ public class EventEntity {
         this.joinedUserIdsCsv = "";
         this.updatedAtMillis = 0L;
         this.imageUrl = "";
+        this.ratingsCsv = "";
     }
 
     @NonNull
@@ -151,5 +153,13 @@ public class EventEntity {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl != null ? imageUrl : "";
+    }
+
+    public String getRatingsCsv() {
+        return ratingsCsv != null ? ratingsCsv : "";
+    }
+
+    public void setRatingsCsv(String ratingsCsv) {
+        this.ratingsCsv = ratingsCsv != null ? ratingsCsv : "";
     }
 }

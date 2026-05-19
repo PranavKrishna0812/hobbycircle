@@ -17,6 +17,8 @@ import com.example.hobbycircle.data.model.ChatThread;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,8 +64,16 @@ public class ChatActivity extends AppCompatActivity {
         preferenceManager = new PreferenceManager(this);
         db = FirebaseFirestore.getInstance();
 
-        currentUserId = preferenceManager.getUserId();
-        currentUserName = preferenceManager.getUserName().isEmpty() ? "User" : preferenceManager.getUserName();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+            currentUserName = currentUser.getDisplayName() != null && !currentUser.getDisplayName().trim().isEmpty()
+                    ? currentUser.getDisplayName().trim()
+                    : (preferenceManager.getUserName().isEmpty() ? "User" : preferenceManager.getUserName());
+        } else {
+            currentUserId = preferenceManager.getUserId();
+            currentUserName = preferenceManager.getUserName().isEmpty() ? "User" : preferenceManager.getUserName();
+        }
 
         initIntentData();
         initViews();

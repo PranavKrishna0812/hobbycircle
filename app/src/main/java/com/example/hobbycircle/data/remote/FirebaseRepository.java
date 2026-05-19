@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 
 import com.example.hobbycircle.data.model.Event;
 import com.example.hobbycircle.data.model.User;
+import com.example.hobbycircle.data.model.Warning;
 import com.example.hobbycircle.utils.UserRoleUtil;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -88,6 +90,112 @@ public class FirebaseRepository {
                     .addOnFailureListener(e -> callback.onError("Failed to fetch profile: " + safe(e.getMessage())));
         } catch (Exception e) {
             callback.onError("Unexpected error while fetching profile: " + safe(e.getMessage()));
+        }
+    }
+
+    public void fetchAllUsers(@NonNull RepositoryCallback<List<User>> callback) {
+        if (!isInternetAvailable()) {
+            callback.onError("No internet connection. Please try again.");
+            return;
+        }
+
+        try {
+            firestore.collection(FirestoreFields.COLLECTION_USERS)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<User> users = new ArrayList<>();
+                        if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                            for (DocumentSnapshot snapshot : queryDocumentSnapshots.getDocuments()) {
+                                users.add(mapUser(snapshot));
+                            }
+                        }
+                        callback.onSuccess(users);
+                    })
+                    .addOnFailureListener(e -> callback.onError("Failed to load users: " + safe(e.getMessage())));
+        } catch (Exception e) {
+            callback.onError("Unexpected error while loading users: " + safe(e.getMessage()));
+        }
+    }
+
+    public void sendWarning(@NonNull Warning warning, @NonNull RepositoryCallback<Void> callback) {
+        if (!isInternetAvailable()) {
+            callback.onError("No internet connection. Please try again.");
+            return;
+        }
+        try {
+            String warningId = warning.getId();
+            if (warningId.trim().isEmpty()) {
+                warningId = UUID.randomUUID().toString();
+                warning.setId(warningId);
+            }
+            warning.setTimestamp(System.currentTimeMillis());
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", warning.getId());
+            map.put("eventId", warning.getEventId());
+            map.put("eventTitle", warning.getEventTitle());
+            map.put("creatorId", warning.getCreatorId());
+            map.put("message", warning.getMessage());
+            map.put("timestamp", warning.getTimestamp());
+            map.put("read", warning.isRead());
+
+            firestore.collection("warnings")
+                    .document(warningId)
+                    .set(map)
+                    .addOnSuccessListener(unused -> callback.onSuccess(null))
+                    .addOnFailureListener(e -> callback.onError("Failed to send warning: " + safe(e.getMessage())));
+        } catch (Exception e) {
+            callback.onError("Unexpected error: " + safe(e.getMessage()));
+        }
+    }
+
+    public void fetchUnreadWarnings(@NonNull String userId, @NonNull RepositoryCallback<List<Warning>> callback) {
+        if (!isInternetAvailable()) {
+            callback.onError("No internet connection.");
+            return;
+        }
+        try {
+            firestore.collection("warnings")
+                    .whereEqualTo("creatorId", userId)
+                    .whereEqualTo("read", false)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<Warning> list = new ArrayList<>();
+                        if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                            for (DocumentSnapshot snapshot : queryDocumentSnapshots.getDocuments()) {
+                                Warning w = new Warning(
+                                        safe(snapshot.getString("id")),
+                                        safe(snapshot.getString("eventId")),
+                                        safe(snapshot.getString("eventTitle")),
+                                        safe(snapshot.getString("creatorId")),
+                                        safe(snapshot.getString("message")),
+                                        snapshot.getLong("timestamp") != null ? snapshot.getLong("timestamp") : 0L,
+                                        snapshot.getBoolean("read") != null ? snapshot.getBoolean("read") : false
+                                );
+                                list.add(w);
+                            }
+                        }
+                        callback.onSuccess(list);
+                    })
+                    .addOnFailureListener(e -> callback.onError("Failed to load warnings: " + safe(e.getMessage())));
+        } catch (Exception e) {
+            callback.onError("Unexpected error: " + safe(e.getMessage()));
+        }
+    }
+
+    public void markWarningAsRead(@NonNull String warningId, @NonNull RepositoryCallback<Void> callback) {
+        if (!isInternetAvailable()) {
+            callback.onError("No internet connection.");
+            return;
+        }
+        try {
+            firestore.collection("warnings")
+                    .document(warningId)
+                    .update("read", true)
+                    .addOnSuccessListener(unused -> callback.onSuccess(null))
+                    .addOnFailureListener(e -> callback.onError("Failed to update warning: " + safe(e.getMessage())));
+        } catch (Exception e) {
+            callback.onError("Unexpected error: " + safe(e.getMessage()));
         }
     }
 
@@ -328,6 +436,13 @@ public class FirebaseRepository {
                             return;
                         }
 
+                        Long dateTimeVal = snapshot.getLong("dateTime");
+                        long dateTime = dateTimeVal != null ? dateTimeVal : 0L;
+                        if (System.currentTimeMillis() >= dateTime && dateTime > 0) {
+                            callback.onError("Cannot join an event that has already started.");
+                            return;
+                        }
+
                         List<String> joined = (List<String>) snapshot.get(FirestoreFields.EVENT_JOINED_USER_IDS);
                         if (joined != null && joined.contains(userId)) {
                             callback.onError("You have already joined this event.");
@@ -376,6 +491,32 @@ public class FirebaseRepository {
         }
     }
 
+    public void rateEvent(@NonNull String eventId, @NonNull String userId, int rating, @NonNull RepositoryCallback<Void> callback) {
+        if (!isInternetAvailable()) {
+            callback.onError("No internet connection. Please try again.");
+            return;
+        }
+
+        try {
+            if (eventId.trim().isEmpty() || userId.trim().isEmpty()) {
+                callback.onError("Event ID and User ID are required.");
+                return;
+            }
+
+            DocumentReference docRef = firestore.collection(FirestoreFields.COLLECTION_EVENTS).document(eventId);
+
+            Map<String, Object> update = new HashMap<>();
+            update.put("ratings." + userId, (long) rating);
+            update.put(FirestoreFields.EVENT_UPDATED_AT, System.currentTimeMillis());
+
+            docRef.update(update)
+                    .addOnSuccessListener(unused -> callback.onSuccess(null))
+                    .addOnFailureListener(e -> callback.onError("Failed to submit rating: " + safe(e.getMessage())));
+        } catch (Exception e) {
+            callback.onError("Unexpected error: " + safe(e.getMessage()));
+        }
+    }
+
     private Map<String, Object> mapUserToFirestore(@NonNull User user) {
         Map<String, Object> map = new HashMap<>();
         map.put(FirestoreFields.USER_ID, safe(user.getId()));
@@ -407,6 +548,7 @@ public class FirebaseRepository {
         map.put("dateTime", event.getDateTime());
         map.put("creatorId", safe(event.getCreatorId()));
         map.put("creatorName", safe(event.getCreatorName()));
+        map.put("ratings", event.getRatings() != null ? event.getRatings() : new HashMap<String, Long>());
         return map;
     }
 
@@ -441,6 +583,25 @@ public class FirebaseRepository {
             event.setCreatorId(event.getCreatedByUserId());
         }
         event.setCreatorName(safe(snapshot.getString("creatorName")));
+
+        Map<String, Long> ratings = new HashMap<>();
+        try {
+            Object obj = snapshot.get("ratings");
+            if (obj instanceof Map) {
+                Map<?, ?> rawMap = (Map<?, ?>) obj;
+                for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+                    if (entry.getKey() != null) {
+                        if (entry.getValue() instanceof Long) {
+                            ratings.put(entry.getKey().toString(), (Long) entry.getValue());
+                        } else if (entry.getValue() instanceof Integer) {
+                            ratings.put(entry.getKey().toString(), ((Integer) entry.getValue()).longValue());
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        event.setRatings(ratings);
+
         return event;
     }
 

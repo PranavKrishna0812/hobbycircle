@@ -1,7 +1,9 @@
 package com.example.hobbycircle.data.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Event {
 
@@ -18,6 +20,7 @@ public class Event {
     private String imageUrl;
     private long updatedAtMillis;
     private int attendeeLimit; // 0 means no limit
+    private Map<String, Long> ratings;
 
     public Event() {
         this.id = "";
@@ -33,6 +36,7 @@ public class Event {
         this.imageUrl = "";
         this.updatedAtMillis = 0L;
         this.attendeeLimit = 0;
+        this.ratings = new HashMap<>();
     }
 
     public Event(String id,
@@ -58,6 +62,7 @@ public class Event {
         this.joinedUserIds = joinedUserIds != null ? joinedUserIds : new ArrayList<>();
         this.imageUrl = imageUrl != null ? imageUrl : "";
         this.updatedAtMillis = 0L;
+        this.ratings = new HashMap<>();
     }
 
     public String getId() {
@@ -183,5 +188,16 @@ public class Event {
 
     public void setAttendeeLimit(int attendeeLimit) {
         this.attendeeLimit = Math.max(0, attendeeLimit);
+    }
+
+    public Map<String, Long> getRatings() {
+        if (ratings == null) {
+            ratings = new HashMap<>();
+        }
+        return ratings;
+    }
+
+    public void setRatings(Map<String, Long> ratings) {
+        this.ratings = ratings != null ? ratings : new HashMap<>();
     }
 }

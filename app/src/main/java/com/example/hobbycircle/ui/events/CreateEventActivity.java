@@ -25,6 +25,8 @@ import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -417,7 +419,8 @@ public class CreateEventActivity extends BaseDrawerActivity {
         if (event == null) {
             return false;
         }
-        String userId = preferenceManager.getUserId();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String userId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
         if (preferenceManager.isAdmin()) {
             return true;
         }
@@ -550,7 +553,8 @@ public class CreateEventActivity extends BaseDrawerActivity {
                 return;
             }
 
-            String userId = preferenceManager.getUserId();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String userId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
             if (userId.isEmpty()) {
                 Toast.makeText(this, "Please complete your profile first.", Toast.LENGTH_SHORT).show();
                 return;

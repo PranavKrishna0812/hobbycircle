@@ -18,12 +18,15 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
+import com.example.hobbycircle.data.model.Warning;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.NotificationHelper;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -50,6 +53,7 @@ public class EventDetailActivity extends AppCompatActivity {
     private MaterialButton btnDelete;
     private MaterialButton btnChat;
     private MaterialButton btnViewChats;
+    private MaterialButton btnWarn;
 
     private EventViewModel eventViewModel;
     private PreferenceManager preferenceManager;
@@ -87,6 +91,7 @@ public class EventDetailActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDelete);
         btnChat = findViewById(R.id.btnChat);
         btnViewChats = findViewById(R.id.btnViewChats);
+        btnWarn = findViewById(R.id.btnWarn);
 
         setSupportActionBar(toolbarDetail);
         if (getSupportActionBar() != null) {
@@ -96,7 +101,8 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        currentUserId = preferenceManager.getUserId();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        currentUserId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
         eventId = getIntent() != null ? safe(getIntent().getStringExtra(Constants.EXTRA_EVENT_ID)) : "";
 
         if (eventId.isEmpty()) {
@@ -159,6 +165,11 @@ public class EventDetailActivity extends AppCompatActivity {
                 new NotificationHelper(this).cancelEventReminder(eventId);
                 Toast.makeText(this, "Left event successfully.", Toast.LENGTH_SHORT).show();
             } else {
+                boolean hasStarted = System.currentTimeMillis() >= currentEvent.getDateTime();
+                if (hasStarted) {
+                    Toast.makeText(this, "Cannot join an event that has already started.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (currentEvent.getAttendeeLimit() > 0 && participants != null && participants.size() >= currentEvent.getAttendeeLimit()) {
                     Toast.makeText(this, "This event has reached its maximum capacity of " + currentEvent.getAttendeeLimit() + " participants.", Toast.LENGTH_LONG).show();
                     return;
@@ -232,6 +243,58 @@ public class EventDetailActivity extends AppCompatActivity {
             intent.putExtra(Constants.EXTRA_EDIT_EVENT, true);
             startActivity(intent);
         });
+
+        btnWarn.setOnClickListener(v -> {
+            if (currentEvent == null) {
+                Toast.makeText(this, "Event details not loaded yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            android.widget.EditText input = new android.widget.EditText(this);
+            input.setHint("Type the warning message here...");
+            input.setSingleLine(false);
+            input.setMinLines(3);
+            input.setGravity(android.view.Gravity.TOP);
+
+            // Container layout to add padding around EditText
+            android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+            android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            int margin = (int) (16 * getResources().getDisplayMetrics().density);
+            params.leftMargin = margin;
+            params.rightMargin = margin;
+            params.topMargin = margin;
+            params.bottomMargin = margin;
+            input.setLayoutParams(params);
+            container.addView(input);
+
+            new MaterialAlertDialogBuilder(this)
+                .setTitle("Send Warning to Creator")
+                .setMessage("This warning will be sent to the creator of this event: " + (currentEvent.getCreatorName().isEmpty() ? "Organizer" : currentEvent.getCreatorName()))
+                .setView(container)
+                .setPositiveButton("Send Warning", (dialog, which) -> {
+                    String msg = input.getText().toString().trim();
+                    if (msg.isEmpty()) {
+                        Toast.makeText(this, "Warning message cannot be empty.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Warning w = new Warning(
+                            null,
+                            currentEvent.getId(),
+                            currentEvent.getTitle(),
+                            currentEvent.getCreatedByUserId(),
+                            msg,
+                            System.currentTimeMillis(),
+                            false
+                    );
+                    eventViewModel.sendWarning(w);
+                    Toast.makeText(this, "Warning message submitted.", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
     }
 
     private void bindEvent(Event event) {
@@ -243,7 +306,7 @@ public class EventDetailActivity extends AppCompatActivity {
         chipDetailHobby.setText(nonEmpty(event.getHobbyId(), "General"));
         tvDetailLocation.setText(nonEmpty(event.getLocation(), "N/A"));
         tvDetailDate.setText(formatTime(event.getEventTimeMillis()));
-        tvDetailCreator.setText(nonEmpty(event.getCreatedByUserId(), "Organizer"));
+        tvDetailCreator.setText(nonEmpty(event.getCreatorName(), "Organizer"));
 
         List<String> participants = event.getJoinedUserIds();
         int count = participants != null ? participants.size() : 0;
@@ -254,12 +317,22 @@ public class EventDetailActivity extends AppCompatActivity {
         }
 
         boolean joined = participants != null && participants.contains(currentUserId);
+        boolean hasStarted = System.currentTimeMillis() >= event.getDateTime();
+
         if (joined) {
             btnJoinLeave.setText("Leave Event");
             btnJoinLeave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.hc_text_secondary)));
+            btnJoinLeave.setEnabled(true);
         } else {
-            btnJoinLeave.setText("Join Event");
-            btnJoinLeave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.hc_accent)));
+            if (hasStarted) {
+                btnJoinLeave.setText("Event Started");
+                btnJoinLeave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.hc_text_secondary)));
+                btnJoinLeave.setEnabled(false);
+            } else {
+                btnJoinLeave.setText("Join Event");
+                btnJoinLeave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.hc_accent)));
+                btnJoinLeave.setEnabled(true);
+            }
         }
 
         // Image Handling via Glide
@@ -270,27 +343,36 @@ public class EventDetailActivity extends AppCompatActivity {
              .error(R.drawable.ic_event_empty)
              .into(ivEventHero);
 
+        boolean isAdmin = preferenceManager.isAdmin();
         boolean canManage = canManageEvent(event);
-        btnDelete.setVisibility(canManage ? View.VISIBLE : View.GONE);
-        btnEdit.setVisibility(canManage ? View.VISIBLE : View.GONE);
 
-        if (canManage) {
+        if (isAdmin) {
             btnJoinLeave.setVisibility(View.GONE);
             btnChat.setVisibility(View.GONE);
-            btnViewChats.setVisibility(View.VISIBLE);
-        } else {
-            btnJoinLeave.setVisibility(View.VISIBLE);
-            btnChat.setVisibility(View.VISIBLE);
             btnViewChats.setVisibility(View.GONE);
+            btnEdit.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.VISIBLE);
+            btnWarn.setVisibility(View.VISIBLE);
+        } else {
+            btnWarn.setVisibility(View.GONE);
+            btnDelete.setVisibility(canManage ? View.VISIBLE : View.GONE);
+            btnEdit.setVisibility(canManage ? View.VISIBLE : View.GONE);
+
+            if (canManage) {
+                btnJoinLeave.setVisibility(View.GONE);
+                btnChat.setVisibility(View.GONE);
+                btnViewChats.setVisibility(View.VISIBLE);
+            } else {
+                btnJoinLeave.setVisibility(View.VISIBLE);
+                btnChat.setVisibility(View.VISIBLE);
+                btnViewChats.setVisibility(View.GONE);
+            }
         }
     }
 
     private boolean canManageEvent(Event event) {
         if (event == null) {
             return false;
-        }
-        if (preferenceManager.isAdmin()) {
-            return true;
         }
         return currentUserId.equals(event.getCreatedByUserId());
     }

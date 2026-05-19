@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "1024049501071-03cjchg1d8hj34n7gvuaesqr3iucmlq0.apps.googleusercontent.com",
+          "client_id": "1024049501071-sgqj588htbl3qagm4n725l0t6tg3ug0l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.hobbycircle",
-            "certificate_hash": "c340200c311adb3a6c2ff0f2ec006ca07ef85cfb"
+            "certificate_hash": "80384448beca20a6e4e06a252461cabf1f97605c"
           }
         },
         {

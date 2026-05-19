@@ -21,6 +21,8 @@ import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.ui.details.EventDetailActivity;
 import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.ui.events.EventAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
@@ -73,6 +75,13 @@ public class NearbyEventsActivity extends BaseDrawerActivity implements EventAda
     private void setupRecycler() {
         rvNearbyEvents.setLayoutManager(new LinearLayoutManager(this));
         adapter = new EventAdapter(new ArrayList<>(), this);
+        adapter.setOnEventRatingChangeListener((event, rating) -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String currentUserId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
+            if (!currentUserId.isEmpty()) {
+                eventViewModel.rateEvent(event.getId(), currentUserId, rating);
+            }
+        });
         rvNearbyEvents.setAdapter(adapter);
     }
 
@@ -119,7 +128,8 @@ public class NearbyEventsActivity extends BaseDrawerActivity implements EventAda
     }
 
     private void applyFilters() {
-        String myId = preferenceManager.getUserId();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String myId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
         String myLoc = safe(preferenceManager.getUserLocation()).toLowerCase(Locale.getDefault());
         String query = etSearch.getText().toString().trim().toLowerCase(Locale.getDefault());
 

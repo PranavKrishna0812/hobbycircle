@@ -74,6 +74,10 @@ public class User {
         this.role = role != null ? role : "";
     }
 
+    public boolean isAdmin() {
+        return "admin".equalsIgnoreCase(role);
+    }
+
     public String getLocation() {
         return location != null ? location : "";
     }

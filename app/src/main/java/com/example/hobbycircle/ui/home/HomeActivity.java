@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
+import com.example.hobbycircle.data.model.User;
+import com.example.hobbycircle.data.model.Warning;
 import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.ui.details.EventDetailActivity;
 import com.example.hobbycircle.ui.events.CreateEventActivity;
@@ -23,8 +25,10 @@ import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import android.widget.ScrollView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,14 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
     private EventViewModel eventViewModel;
     private EventAdapter eventAdapter;
 
+    private ScrollView adminAnalyticsContainer;
+    private TextView tvTotalUsers;
+    private TextView tvTotalEvents;
+    private RecyclerView rvCreatorRatings;
+    private CreatorRatingAdapter creatorRatingAdapter;
+    private List<User> allUsers = new ArrayList<>();
+    private List<Event> allEvents = new ArrayList<>();
+
     private List<Event> fullEvents = new ArrayList<>();
 
     @Override
@@ -59,7 +71,18 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
         setupClicks();
         renderHeaderAndGreeting();
 
-        eventViewModel.loadEvents();
+        if (preferenceManager.isAdmin()) {
+            adminAnalyticsContainer.setVisibility(View.VISIBLE);
+            rvJoinedEvents.setVisibility(View.GONE);
+            emptyState.setVisibility(View.GONE);
+            fabCreateEvent.setVisibility(View.GONE);
+            tvEventCount.setText("Admin Panel Analytics");
+        } else {
+            adminAnalyticsContainer.setVisibility(View.GONE);
+            fabCreateEvent.setVisibility(View.VISIBLE);
+        }
+
+        loadData();
     }
 
     private void initViews() {
@@ -69,12 +92,30 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
         emptyState = findViewById(R.id.emptyState);
         btnBrowseNearby = findViewById(R.id.btnBrowseNearby);
         fabCreateEvent = findViewById(R.id.fabCreateEvent);
+
+        adminAnalyticsContainer = findViewById(R.id.adminAnalyticsContainer);
+        tvTotalUsers = findViewById(R.id.tvTotalUsers);
+        tvTotalEvents = findViewById(R.id.tvTotalEvents);
+        rvCreatorRatings = findViewById(R.id.rvCreatorRatings);
     }
 
     private void setupRecycler() {
         rvJoinedEvents.setLayoutManager(new LinearLayoutManager(this));
         eventAdapter = new EventAdapter(new ArrayList<>(), this);
+        eventAdapter.setOnEventRatingChangeListener((event, rating) -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String currentUserId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
+            if (!currentUserId.isEmpty()) {
+                eventViewModel.rateEvent(event.getId(), currentUserId, rating);
+            }
+        });
         rvJoinedEvents.setAdapter(eventAdapter);
+
+        if (preferenceManager.isAdmin()) {
+            rvCreatorRatings.setLayoutManager(new LinearLayoutManager(this));
+            creatorRatingAdapter = new CreatorRatingAdapter(new ArrayList<>());
+            rvCreatorRatings.setAdapter(creatorRatingAdapter);
+        }
     }
 
     private void setupViewModel() {
@@ -82,7 +123,25 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
 
         eventViewModel.getEventsLiveData().observe(this, events -> {
             fullEvents = events != null ? events : new ArrayList<>();
-            showAcceptedOnly();
+            allEvents = fullEvents;
+            if (preferenceManager.isAdmin()) {
+                updateAdminAnalytics();
+            } else {
+                showAcceptedOnly();
+            }
+        });
+
+        eventViewModel.getUsersLiveData().observe(this, users -> {
+            allUsers = users != null ? users : new ArrayList<>();
+            if (preferenceManager.isAdmin()) {
+                updateAdminAnalytics();
+            }
+        });
+
+        eventViewModel.getWarningsLiveData().observe(this, warnings -> {
+            if (warnings != null && !warnings.isEmpty()) {
+                showWarningPopup(warnings);
+            }
         });
 
         eventViewModel.getMessageLiveData().observe(this, msg -> {
@@ -138,7 +197,12 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
     }
 
     private void showAcceptedOnly() {
-        String currentUserId = preferenceManager.getUserId();
+        if (preferenceManager.isAdmin()) {
+            return;
+        }
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String currentUserId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
 
         List<Event> filtered = new ArrayList<>();
         for (Event event : fullEvents) {
@@ -185,7 +249,7 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
     protected void onResume() {
         super.onResume();
         renderHeaderAndGreeting();
-        eventViewModel.loadEvents();
+        loadData();
     }
 
     @Override
@@ -197,6 +261,92 @@ public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnE
     @Override
     protected String getDefaultTitle() {
         return "Home";
+    }
+
+    private void loadData() {
+        eventViewModel.loadEvents();
+        if (preferenceManager.isAdmin()) {
+            eventViewModel.loadAllUsers();
+        } else {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String currentUserId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
+            if (!currentUserId.isEmpty()) {
+                eventViewModel.fetchUnreadWarnings(currentUserId);
+            }
+        }
+    }
+
+    private void updateAdminAnalytics() {
+        if (!preferenceManager.isAdmin()) return;
+
+        int totalUsers = allUsers.size();
+        int totalEvents = allEvents.size();
+
+        tvTotalUsers.setText(String.valueOf(totalUsers));
+        tvTotalEvents.setText(String.valueOf(totalEvents));
+
+        List<CreatorRatingAdapter.CreatorStats> statsList = new ArrayList<>();
+        for (User u : allUsers) {
+            if (u == null) continue;
+            // Admin user is not a creator, filter out if needed or include
+            if (u.isAdmin()) continue;
+
+            int count = 0;
+            double ratingSum = 0.0;
+            int ratingsCount = 0;
+
+            for (Event e : allEvents) {
+                if (e != null && safe(e.getCreatedByUserId()).equals(u.getId())) {
+                    count++;
+                    if (e.getRatings() != null && !e.getRatings().isEmpty()) {
+                        for (Long val : e.getRatings().values()) {
+                            ratingSum += val;
+                            ratingsCount++;
+                        }
+                    }
+                }
+            }
+
+            double avg = ratingsCount > 0 ? (ratingSum / ratingsCount) : -1.0;
+            statsList.add(new CreatorRatingAdapter.CreatorStats(u, count, avg));
+        }
+
+        // Sort creators: highest rating first, then by count
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            statsList.sort((o1, o2) -> {
+                if (o1.averageRating >= 0 && o2.averageRating < 0) return -1;
+                if (o1.averageRating < 0 && o2.averageRating >= 0) return 1;
+                if (o1.averageRating >= 0 && o2.averageRating >= 0) {
+                    return Double.compare(o2.averageRating, o1.averageRating);
+                }
+                return Integer.compare(o2.eventsCreatedCount, o1.eventsCreatedCount);
+            });
+        }
+
+        creatorRatingAdapter.submitList(statsList);
+    }
+
+    private void showWarningPopup(List<Warning> warnings) {
+        if (warnings == null || warnings.isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("The administrator has issued the following warning(s) regarding your events:\n\n");
+        for (int i = 0; i < warnings.size(); i++) {
+            Warning w = warnings.get(i);
+            sb.append(String.format(Locale.getDefault(), "%d. Event: \"%s\"\nReason: %s\n\n",
+                    i + 1, w.getEventTitle(), w.getMessage()));
+        }
+
+        new MaterialAlertDialogBuilder(this)
+            .setTitle("⚠️ Admin Warning")
+            .setMessage(sb.toString())
+            .setPositiveButton("I Understand", (dialog, which) -> {
+                for (Warning w : warnings) {
+                    eventViewModel.markWarningAsRead(w.getId());
+                }
+            })
+            .setCancelable(false)
+            .show();
     }
 
     private String safe(String s) {

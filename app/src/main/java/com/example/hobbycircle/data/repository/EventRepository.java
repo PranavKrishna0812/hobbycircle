@@ -57,7 +57,9 @@ public class EventRepository {
         executor.execute(() -> {
             try {
                 List<EventEntity> entities = eventDao.getAllEvents();
-                callback.onSuccess(DataMappers.fromEventEntities(entities));
+                List<Event> parsed = DataMappers.fromEventEntities(entities);
+                List<Event> filtered = filterAndCleanExpiredEvents(parsed);
+                callback.onSuccess(filtered);
             } catch (Exception e) {
                 callback.onError("Failed to read local events: " + safe(e.getMessage()));
             }
@@ -69,8 +71,9 @@ public class EventRepository {
             @Override
             public void onSuccess(List<Event> data) {
                 List<Event> safeData = data != null ? data : new ArrayList<>();
-                cacheEvents(safeData);
-                callback.onSuccess(safeData);
+                List<Event> filtered = filterAndCleanExpiredEvents(safeData);
+                cacheEvents(filtered);
+                callback.onSuccess(filtered);
             }
 
             @Override
@@ -85,7 +88,14 @@ public class EventRepository {
             try {
                 EventEntity local = eventDao.getEventById(safe(eventId));
                 if (local != null) {
-                    callback.onSuccess(DataMappers.fromEventEntity(local));
+                    Event event = DataMappers.fromEventEntity(local);
+                    long threshold = System.currentTimeMillis() - 24L * 60 * 60 * 1000;
+                    if (event.getDateTime() < threshold && event.getDateTime() > 0) {
+                        deleteEventExpired(event.getId());
+                        callback.onError("Event has expired.");
+                    } else {
+                        callback.onSuccess(event);
+                    }
                 }
             } catch (Exception e) {
                 callback.onError("Failed to read local event: " + safe(e.getMessage()));
@@ -95,8 +105,14 @@ public class EventRepository {
         firebaseRepository.getEventById(safe(eventId), new FirebaseRepository.RepositoryCallback<Event>() {
             @Override
             public void onSuccess(Event data) {
-                cacheEvent(data);
-                callback.onSuccess(data);
+                long threshold = System.currentTimeMillis() - 24L * 60 * 60 * 1000;
+                if (data.getDateTime() < threshold && data.getDateTime() > 0) {
+                    deleteEventExpired(data.getId());
+                    callback.onError("Event has expired.");
+                } else {
+                    cacheEvent(data);
+                    callback.onSuccess(data);
+                }
             }
 
             @Override
@@ -185,6 +201,31 @@ public class EventRepository {
             @Override
             public void onSuccess(Void data) {
                 callback.onSuccess(null);
+            }
+
+            @Override
+            public void onError(String message) {
+                callback.onError(safe(message));
+            }
+        });
+    }
+
+    public void rateEvent(String eventId, String userId, int rating, @NonNull ResultCallback<Void> callback) {
+        firebaseRepository.rateEvent(safe(eventId), safe(userId), rating, new FirebaseRepository.RepositoryCallback<Void>() {
+            @Override
+            public void onSuccess(Void data) {
+                firebaseRepository.getEventById(safe(eventId), new FirebaseRepository.RepositoryCallback<Event>() {
+                    @Override
+                    public void onSuccess(Event dataEvent) {
+                        cacheEvent(dataEvent);
+                        callback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        callback.onSuccess(null);
+                    }
+                });
             }
 
             @Override
@@ -312,6 +353,39 @@ public class EventRepository {
                 }
             } catch (Exception ignored) {
             }
+        });
+    }
+
+    private List<Event> filterAndCleanExpiredEvents(List<Event> events) {
+        List<Event> activeEvents = new ArrayList<>();
+        if (events == null) {
+            return activeEvents;
+        }
+        long now = System.currentTimeMillis();
+        long threshold = now - 24L * 60 * 60 * 1000;
+        for (Event event : events) {
+            if (event.getDateTime() < threshold && event.getDateTime() > 0) {
+                deleteEventExpired(event.getId());
+            } else {
+                activeEvents.add(event);
+            }
+        }
+        return activeEvents;
+    }
+
+    private void deleteEventExpired(String eventId) {
+        notificationHelper.cancelEventReminder(safe(eventId));
+        executor.execute(() -> {
+            try {
+                eventDao.deleteById(safe(eventId));
+            } catch (Exception ignored) {}
+        });
+        firebaseRepository.deleteEvent(safe(eventId), new FirebaseRepository.RepositoryCallback<Void>() {
+            @Override
+            public void onSuccess(Void data) {}
+
+            @Override
+            public void onError(String message) {}
         });
     }
 

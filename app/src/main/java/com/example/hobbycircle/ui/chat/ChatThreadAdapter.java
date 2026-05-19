@@ -52,9 +52,11 @@ public class ChatThreadAdapter extends RecyclerView.Adapter<ChatThreadAdapter.Vi
     }
 
     public void submitList(List<ChatThread> newList) {
-        this.threadList.clear();
-        if (newList != null) {
-            this.threadList.addAll(newList);
+        if (newList != this.threadList) {
+            this.threadList.clear();
+            if (newList != null) {
+                this.threadList.addAll(newList);
+            }
         }
         notifyDataSetChanged();
     }

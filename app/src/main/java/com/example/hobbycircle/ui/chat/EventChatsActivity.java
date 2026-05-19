@@ -102,7 +102,6 @@ public class EventChatsActivity extends AppCompatActivity implements ChatThreadA
 
         registration = db.collection("chats")
                 .whereEqualTo("eventId", eventId)
-                .orderBy("lastMessageTimestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Toast.makeText(this, "Listen error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -110,6 +109,8 @@ public class EventChatsActivity extends AppCompatActivity implements ChatThreadA
                     }
                     if (value != null) {
                         List<ChatThread> list = value.toObjects(ChatThread.class);
+                        // Sort in memory to avoid needing a Firestore composite index
+                        list.sort((t1, t2) -> Long.compare(t2.getLastMessageTimestamp(), t1.getLastMessageTimestamp()));
                         threadList.clear();
                         threadList.addAll(list);
                         adapter.submitList(threadList);

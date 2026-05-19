@@ -69,9 +69,11 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void submitList(List<ChatMessage> newList) {
-        this.messageList.clear();
-        if (newList != null) {
-            this.messageList.addAll(newList);
+        if (newList != this.messageList) {
+            this.messageList.clear();
+            if (newList != null) {
+                this.messageList.addAll(newList);
+            }
         }
         notifyDataSetChanged();
     }

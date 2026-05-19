@@ -6,7 +6,9 @@ import com.example.hobbycircle.data.model.Event;
 import com.example.hobbycircle.data.model.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class DataMappers {
 
@@ -29,6 +31,7 @@ public final class DataMappers {
         entity.setCreatorName(safe(event.getCreatorName()));
         entity.setJoinedUserIdsCsv(toCsv(event.getJoinedUserIds()));
         entity.setImageUrl(safe(event.getImageUrl()));
+        entity.setRatingsCsv(toRatingsCsv(event.getRatings()));
         entity.setUpdatedAtMillis(event.getUpdatedAtMillis() > 0L
                 ? event.getUpdatedAtMillis()
                 : System.currentTimeMillis());
@@ -51,6 +54,7 @@ public final class DataMappers {
         event.setCreatorName(safe(entity.getCreatorName()));
         event.setJoinedUserIds(fromCsv(entity.getJoinedUserIdsCsv()));
         event.setImageUrl(safe(entity.getImageUrl()));
+        event.setRatings(fromRatingsCsv(entity.getRatingsCsv()));
         event.setUpdatedAtMillis(entity.getUpdatedAtMillis());
         return event;
     }
@@ -133,5 +137,36 @@ public final class DataMappers {
 
     private static String safe(String value) {
         return value != null ? value.trim() : "";
+    }
+
+    public static String toRatingsCsv(Map<String, Long> ratings) {
+        if (ratings == null || ratings.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Long> entry : ratings.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(entry.getKey()).append(":").append(entry.getValue());
+        }
+        return sb.toString();
+    }
+
+    public static Map<String, Long> fromRatingsCsv(String csv) {
+        Map<String, Long> map = new HashMap<>();
+        if (csv == null || csv.trim().isEmpty()) {
+            return map;
+        }
+        String[] parts = csv.split(",");
+        for (String part : parts) {
+            String[] kv = part.split(":");
+            if (kv.length == 2) {
+                try {
+                    map.put(kv[0].trim(), Long.parseLong(kv[1].trim()));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return map;
     }
 }

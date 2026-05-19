@@ -9,7 +9,11 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
+import com.example.hobbycircle.data.model.User;
+import com.example.hobbycircle.data.model.Warning;
 import com.example.hobbycircle.data.repository.EventRepository;
+import com.example.hobbycircle.data.repository.UserRepository;
+import com.example.hobbycircle.data.remote.FirebaseRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,19 +23,87 @@ import java.util.concurrent.Executors;
 public class EventViewModel extends AndroidViewModel {
 
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     private final ExecutorService executorService;
 
     private final MutableLiveData<List<Event>> eventsLiveData = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Event> selectedEventLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> messageLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Warning>> warningsLiveData = new MutableLiveData<>(new ArrayList<>());
 
     private Event lastLoadedEventForUpdate;
 
     public EventViewModel(@NonNull Application application) {
         super(application);
         this.eventRepository = new EventRepository(application.getApplicationContext());
+        this.userRepository = new UserRepository(application.getApplicationContext());
         this.executorService = Executors.newSingleThreadExecutor();
+    }
+
+    public LiveData<List<User>> getUsersLiveData() {
+        return usersLiveData;
+    }
+
+    public LiveData<List<Warning>> getWarningsLiveData() {
+        return warningsLiveData;
+    }
+
+    public void loadAllUsers() {
+        userRepository.fetchAllUsers(new UserRepository.ResultCallback<List<User>>() {
+            @Override
+            public void onSuccess(List<User> data) {
+                usersLiveData.postValue(data);
+            }
+
+            @Override
+            public void onError(String message) {
+                messageLiveData.postValue(message);
+            }
+        });
+    }
+
+    public void sendWarning(Warning warning) {
+        new FirebaseRepository(getApplication()).sendWarning(warning, new FirebaseRepository.RepositoryCallback<Void>() {
+            @Override
+            public void onSuccess(Void data) {
+                messageLiveData.postValue("Warning sent successfully.");
+            }
+
+            @Override
+            public void onError(String message) {
+                messageLiveData.postValue(message);
+            }
+        });
+    }
+
+    public void fetchUnreadWarnings(String userId) {
+        new FirebaseRepository(getApplication()).fetchUnreadWarnings(userId, new FirebaseRepository.RepositoryCallback<List<Warning>>() {
+            @Override
+            public void onSuccess(List<Warning> data) {
+                warningsLiveData.postValue(data);
+            }
+
+            @Override
+            public void onError(String message) {
+                messageLiveData.postValue(message);
+            }
+        });
+    }
+
+    public void markWarningAsRead(String warningId) {
+        new FirebaseRepository(getApplication()).markWarningAsRead(warningId, new FirebaseRepository.RepositoryCallback<Void>() {
+            @Override
+            public void onSuccess(Void data) {
+                // Warning successfully dismissed
+            }
+
+            @Override
+            public void onError(String message) {
+                messageLiveData.postValue(message);
+            }
+        });
     }
 
     public LiveData<List<Event>> getEventsLiveData() {
@@ -196,6 +268,24 @@ public class EventViewModel extends AndroidViewModel {
             public void onSuccess(Void data) {
                 loadingLiveData.postValue(false);
                 messageLiveData.postValue(getApplication().getString(R.string.msg_event_deleted));
+                loadEvents();
+            }
+
+            @Override
+            public void onError(String message) {
+                loadingLiveData.postValue(false);
+                messageLiveData.postValue(safe(message));
+            }
+        });
+    }
+
+    public void rateEvent(String eventId, String userId, int rating) {
+        loadingLiveData.setValue(true);
+        eventRepository.rateEvent(safe(eventId), safe(userId), rating, new EventRepository.ResultCallback<Void>() {
+            @Override
+            public void onSuccess(Void data) {
+                loadingLiveData.postValue(false);
+                messageLiveData.postValue("Rating submitted successfully!");
                 loadEvents();
             }
 

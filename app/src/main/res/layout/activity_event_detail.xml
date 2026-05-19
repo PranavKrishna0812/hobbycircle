@@ -301,6 +301,17 @@
             app:cornerRadius="12dp" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWarn"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/detail_bottom_bar_button_height"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Send Warning"
+            android:textColor="@color/colorWhite"
+            android:visibility="gone"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChat"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"

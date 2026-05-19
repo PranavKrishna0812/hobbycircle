@@ -173,6 +173,20 @@ public class UserRepository {
                 .addOnFailureListener(e -> callback.onError(safe(e.getMessage())));
     }
 
+    public void fetchAllUsers(@NonNull ResultCallback<java.util.List<User>> callback) {
+        firebaseRepository.fetchAllUsers(new FirebaseRepository.RepositoryCallback<java.util.List<User>>() {
+            @Override
+            public void onSuccess(java.util.List<User> data) {
+                callback.onSuccess(data);
+            }
+
+            @Override
+            public void onError(String message) {
+                callback.onError(safe(message));
+            }
+        });
+    }
+
     private User applyRoleResolution(User user) {
         if (user == null) {
             return new User();

@@ -22,6 +22,8 @@ import com.example.hobbycircle.ui.events.EventAdapter;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,13 @@ public class AdminEventsActivity extends BaseDrawerActivity implements EventAdap
 
         rvAdminEvents.setLayoutManager(new LinearLayoutManager(this));
         adapter = new EventAdapter(new ArrayList<>(), this);
+        adapter.setOnEventRatingChangeListener((event, rating) -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String currentUserId = currentUser != null ? currentUser.getUid() : preferenceManager.getUserId();
+            if (!currentUserId.isEmpty()) {
+                eventViewModel.rateEvent(event.getId(), currentUserId, rating);
+            }
+        });
         rvAdminEvents.setAdapter(adapter);
 
         eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);

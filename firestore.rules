@@ -28,10 +28,34 @@ service cloud.firestore {
         && request.resource.data.createdByUserId == request.auth.uid;
       allow update: if isSignedIn() && (
         isEventCreator(eventId)
-        || isAdmin()
-        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinedUserIds', 'updatedAt'])
+        || (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinedUserIds', 'updatedAt', 'ratings'])
+          && (!('dateTime' in resource.data) || resource.data.dateTime > request.time.toMillis() || request.resource.data.joinedUserIds == resource.data.joinedUserIds)
+        )
       );
-      allow delete: if isSignedIn() && (isEventCreator(eventId) || isAdmin());
+      allow delete: if isSignedIn() && (
+        isEventCreator(eventId)
+        || isAdmin()
+        || ('dateTime' in resource.data && request.time.toMillis() > resource.data.dateTime + 24 * 60 * 60 * 1000)
+      );
+    }
+
+    match /warnings/{warningId} {
+      allow read: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isSignedIn() && (
+        resource.data.creatorId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /chats/{chatThreadId} {
+      allow read, write: if isSignedIn();
+
+      match /messages/{messageId} {
+        allow read, write: if isSignedIn();
+      }
     }
   }
 }

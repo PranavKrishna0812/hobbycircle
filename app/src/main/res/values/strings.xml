@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Hobby Circle</string>
-    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_FROM_GOOGLE_SERVICES</string>
+    <string name="default_web_client_id">1024049501071-o837beliuksglq4ksfg5rb539qhajtju.apps.googleusercontent.com</string>
 
     <string-array name="admin_emails">
         <item>pranavpower609@gmail.com</item>
