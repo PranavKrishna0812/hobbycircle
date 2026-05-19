@@ -115,19 +115,36 @@ public class AuthActivity extends AppCompatActivity {
                     getPackageName(),
                     android.content.pm.PackageManager.GET_SIGNATURES);
             for (android.content.pm.Signature signature : info.signatures) {
-                java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-1");
-                md.update(signature.toByteArray());
-                byte[] digest = md.digest();
-                StringBuilder toPrint = new StringBuilder();
-                for (int i = 0; i < digest.length; i++) {
-                    if (i > 0) toPrint.append(":");
-                    int b = digest[i] & 0xff;
+                // SHA-1
+                java.security.MessageDigest md1 = java.security.MessageDigest.getInstance("SHA-1");
+                md1.update(signature.toByteArray());
+                byte[] digest1 = md1.digest();
+                StringBuilder toPrint1 = new StringBuilder();
+                for (int i = 0; i < digest1.length; i++) {
+                    if (i > 0) toPrint1.append(":");
+                    int b = digest1[i] & 0xff;
                     String hex = Integer.toHexString(b).toUpperCase();
-                    if (hex.length() == 1) toPrint.append("0");
-                    toPrint.append(hex);
+                    if (hex.length() == 1) toPrint1.append("0");
+                    toPrint1.append(hex);
                 }
+
+                // SHA-256
+                java.security.MessageDigest md256 = java.security.MessageDigest.getInstance("SHA-256");
+                md256.update(signature.toByteArray());
+                byte[] digest256 = md256.digest();
+                StringBuilder toPrint256 = new StringBuilder();
+                for (int i = 0; i < digest256.length; i++) {
+                    if (i > 0) toPrint256.append(":");
+                    int b = digest256[i] & 0xff;
+                    String hex = Integer.toHexString(b).toUpperCase();
+                    if (hex.length() == 1) toPrint256.append("0");
+                    toPrint256.append(hex);
+                }
+
                 android.util.Log.d("HobbyCircleSHA1", "=================================================");
-                android.util.Log.d("HobbyCircleSHA1", "ACTUAL RUNNING SIGNING SHA-1: " + toPrint.toString());
+                android.util.Log.d("HobbyCircleSHA1", "ACTUAL RUNNING SIGNING SHA-1: " + toPrint1.toString());
+                android.util.Log.d("HobbyCircleSHA1", "ACTUAL RUNNING SIGNING SHA-256: " + toPrint256.toString());
+                android.util.Log.d("HobbyCircleSHA1", "CURRENT CLIENT ID IN APP: " + getString(R.string.default_web_client_id));
                 android.util.Log.d("HobbyCircleSHA1", "=================================================");
             }
         } catch (Exception e) {
