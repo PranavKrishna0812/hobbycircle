@@ -11,10 +11,7 @@
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="@string/nav_profile" />
 
-    <item
-        android:id="@+id/nav_accepted_events"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="@string/nav_accepted_events" />
+
 
     <item
         android:id="@+id/nav_nearby_events"

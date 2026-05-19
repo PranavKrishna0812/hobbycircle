@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.ui.auth.ProfileActivity;
-import com.example.hobbycircle.ui.home.AcceptedEventsActivity;
 import com.example.hobbycircle.ui.home.HomeActivity;
 import com.example.hobbycircle.ui.home.NearbyEventsActivity;
 import com.example.hobbycircle.ui.admin.AdminEventsActivity;
@@ -82,8 +81,6 @@ public abstract class BaseDrawerActivity extends AppCompatActivity
             startActivity(i);
         } else if (id == R.id.nav_profile) {
             target = ProfileActivity.class;
-        } else if (id == R.id.nav_accepted_events) {
-            target = AcceptedEventsActivity.class;
         } else if (id == R.id.nav_nearby_events) {
             target = NearbyEventsActivity.class;
         } else if (id == R.id.nav_create_event) {

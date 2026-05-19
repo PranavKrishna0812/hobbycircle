@@ -24,7 +24,6 @@ import com.example.hobbycircle.ui.details.EventDetailActivity;
 import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.ui.events.EventAdapter;
 import com.example.hobbycircle.ui.admin.AdminEventsActivity;
-import com.example.hobbycircle.ui.home.AcceptedEventsActivity;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.DrawerMenuHelper;
 import com.example.hobbycircle.utils.PreferenceManager;
@@ -214,8 +213,6 @@ public class HomeActivity extends AppCompatActivity implements
             // Already on home, just close drawer
         } else if (id == R.id.nav_profile) {
             startActivity(new Intent(this, ProfileActivity.class));
-        } else if (id == R.id.nav_accepted_events) {
-            startActivity(new Intent(this, AcceptedEventsActivity.class));
         } else if (id == R.id.nav_nearby_events) {
             startActivity(new Intent(this, NearbyEventsActivity.class));
         } else if (id == R.id.nav_create_event) {
