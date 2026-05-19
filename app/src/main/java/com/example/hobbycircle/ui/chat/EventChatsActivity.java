@@ -105,6 +105,7 @@ public class EventChatsActivity extends AppCompatActivity implements ChatThreadA
                 .orderBy("lastMessageTimestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
+                        Toast.makeText(this, "Listen error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     if (value != null) {

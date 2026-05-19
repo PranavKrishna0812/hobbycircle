@@ -146,6 +146,7 @@ public class ChatActivity extends AppCompatActivity {
         registration = messagesRef.orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
+                        Toast.makeText(this, "Listen error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     if (value != null) {
@@ -177,7 +178,10 @@ public class ChatActivity extends AppCompatActivity {
 
         // 1. Write message to messages subcollection
         DocumentReference threadRef = db.collection("chats").document(chatThreadId);
-        threadRef.collection("messages").add(message);
+        threadRef.collection("messages").add(message)
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to send message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
 
         // 2. Update conversation thread summary for easy querying
         ChatThread summary = new ChatThread(
@@ -191,7 +195,10 @@ public class ChatActivity extends AppCompatActivity {
                 text,
                 timestamp
         );
-        threadRef.set(summary);
+        threadRef.set(summary)
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to update thread: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private String safe(String value) {
