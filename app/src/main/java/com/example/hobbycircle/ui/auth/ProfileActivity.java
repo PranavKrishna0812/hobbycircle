@@ -285,6 +285,17 @@ public class ProfileActivity extends BaseDrawerActivity implements CompactEventA
     }
 
     @Override
+    public void onEditEventClick(Event event) {
+        if (event == null || safe(event.getId()).isEmpty()) {
+            return;
+        }
+        Intent i = new Intent(this, com.example.hobbycircle.ui.events.CreateEventActivity.class);
+        i.putExtra(Constants.EXTRA_EVENT_ID, event.getId());
+        i.putExtra(Constants.EXTRA_EDIT_EVENT, true);
+        startActivity(i);
+    }
+
+    @Override
     protected int contentLayoutResId() {
         return R.layout.activity_profile;
     }

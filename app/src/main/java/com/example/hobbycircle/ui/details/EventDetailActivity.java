@@ -46,6 +46,7 @@ public class EventDetailActivity extends AppCompatActivity {
     private TextView tvDetailCreator;
     private TextView tvDetailDescription;
     private MaterialButton btnJoinLeave;
+    private MaterialButton btnEdit;
     private MaterialButton btnDelete;
 
     private EventViewModel eventViewModel;
@@ -80,6 +81,7 @@ public class EventDetailActivity extends AppCompatActivity {
         tvDetailCreator = findViewById(R.id.tvDetailCreator);
         tvDetailDescription = findViewById(R.id.tvDetailDescription);
         btnJoinLeave = findViewById(R.id.btnJoinLeave);
+        btnEdit = findViewById(R.id.btnEdit);
         btnDelete = findViewById(R.id.btnDelete);
 
         setSupportActionBar(toolbarDetail);
@@ -180,6 +182,16 @@ public class EventDetailActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .show();
         });
+
+        btnEdit.setOnClickListener(v -> {
+            if (currentEvent == null) {
+                return;
+            }
+            Intent intent = new Intent(this, com.example.hobbycircle.ui.events.CreateEventActivity.class);
+            intent.putExtra(Constants.EXTRA_EVENT_ID, currentEvent.getId());
+            intent.putExtra(Constants.EXTRA_EDIT_EVENT, true);
+            startActivity(intent);
+        });
     }
 
     private void bindEvent(Event event) {
@@ -216,6 +228,7 @@ public class EventDetailActivity extends AppCompatActivity {
 
         boolean canManage = canManageEvent(event);
         btnDelete.setVisibility(canManage ? View.VISIBLE : View.GONE);
+        btnEdit.setVisibility(canManage ? View.VISIBLE : View.GONE);
     }
 
     private boolean canManageEvent(Event event) {

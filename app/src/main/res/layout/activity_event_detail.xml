@@ -290,6 +290,18 @@
             app:cornerRadius="12dp" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEdit"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/detail_bottom_bar_button_height"
+            android:layout_marginStart="12dp"
+            android:text="Edit"
+            android:textColor="@color/colorNavy"
+            android:visibility="gone"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/colorLightGray" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDelete"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"

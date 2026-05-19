@@ -23,6 +23,7 @@ public class CompactEventAdapter extends RecyclerView.Adapter<CompactEventAdapte
 
     public interface OnCompactEventClickListener {
         void onCompactEventClick(Event event);
+        void onEditEventClick(Event event);
     }
 
     public CompactEventAdapter(List<Event> eventList, OnCompactEventClickListener listener) {
@@ -63,12 +64,14 @@ public class CompactEventAdapter extends RecyclerView.Adapter<CompactEventAdapte
         private final TextView tvCompactTitle;
         private final TextView tvCompactDate;
         private final TextView tvCompactAttendees;
+        private final android.widget.ImageView ivEditEvent;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCompactTitle = itemView.findViewById(R.id.tvCompactTitle);
             tvCompactDate = itemView.findViewById(R.id.tvCompactDate);
             tvCompactAttendees = itemView.findViewById(R.id.tvCompactAttendees);
+            ivEditEvent = itemView.findViewById(R.id.ivEditEvent);
         }
 
         public void bind(Event event, OnCompactEventClickListener listener) {
@@ -90,6 +93,14 @@ public class CompactEventAdapter extends RecyclerView.Adapter<CompactEventAdapte
                     listener.onCompactEventClick(event);
                 }
             });
+
+            if (ivEditEvent != null) {
+                ivEditEvent.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onEditEventClick(event);
+                    }
+                });
+            }
         }
     }
 }

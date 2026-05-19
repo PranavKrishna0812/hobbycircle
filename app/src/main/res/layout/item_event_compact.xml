@@ -56,4 +56,19 @@
             android:textColor="@color/colorTextSecondary"
             android:textSize="11sp" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivEditEvent"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="6dp"
+        android:src="@drawable/ic_edit"
+        android:contentDescription="Edit Event"
+        android:tint="@color/hc_accent" />
+
 </LinearLayout>
