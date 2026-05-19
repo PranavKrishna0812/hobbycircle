@@ -10,7 +10,7 @@ import java.util.List;
 @Dao
 public interface EventDao {
 
-    @Query("SELECT * FROM events ORDER BY eventTimeMillis ASC")
+    @Query("SELECT * FROM events ORDER BY dateTime ASC")
     List<EventEntity> getAllEvents();
 
     @Query("SELECT * FROM events WHERE id = :eventId LIMIT 1")

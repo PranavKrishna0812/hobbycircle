@@ -1,237 +1,497 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/createEventRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/hc_bg">
 
-    <ScrollView
-        android:id="@+id/createEventScroll"
+    <!-- AppBar & Stepper Indicator -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarCreate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorNavy"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarCreate"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorNavy"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/colorWhite"
+            app:title="Create Event"
+            app:titleTextColor="@color/colorWhite" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressStepper"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:progress="25"
+            app:indicatorColor="@color/hc_accent"
+            app:trackColor="@color/colorPrimaryVariant" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Content Forms -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="84dp"
         android:fillViewport="true"
-        android:paddingLeft="32dp"
-        android:paddingTop="32dp"
-        android:paddingRight="32dp"
-        android:paddingBottom="90dp"
-        android:clipToPadding="false">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Title -->
-            <TextView
-                android:id="@+id/tvCreateEventTitle"
+            <!-- CARD 1 — Basic Info -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Create Meetup"
-                android:textColor="@color/hc_text_primary"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <!-- Progress bar decoration -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginTop="12dp"
-                android:background="@color/hc_surface">
-
-                <View
-                    android:layout_width="120dp"
-                    android:layout_height="4dp"
-                    android:background="@color/hc_primary" />
-            </FrameLayout>
-
-            <!-- Form card with glassmorphism -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_card"
-                android:orientation="vertical"
-                android:padding="18dp">
-
-                <!-- EVENT IMAGE area -->
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
-
-                    <ImageView
-                        android:id="@+id/ivEventImage"
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:scaleType="centerCrop"
-                        android:background="@color/hc_surface"
-                        android:visibility="visible" /> <!-- Always visible for the border/bg to show -->
-
-                    <Button
-                        android:id="@+id/btnAddImage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+ Add Cover Image"
-                        android:backgroundTint="#00000000"
-                        android:textColor="@color/hc_primary_light"
-                        android:layout_gravity="center"
-                        style="?attr/materialButtonOutlinedStyle"
-                        app:strokeColor="@color/hc_primary" />
-                </FrameLayout>
-
-                <!-- EVENT TITLE label -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:letterSpacing="0.06"
-                    android:text="EVENT TITLE"
-                    android:textAllCaps="true"
-                    android:textColor="@color/hc_text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Event title"
-                    android:textColor="@color/hc_text_primary"
-                    android:textColorHint="@color/hc_text_secondary" />
-
-                <!-- DESCRIPTION label -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:letterSpacing="0.06"
-                    android:text="DESCRIPTION"
-                    android:textAllCaps="true"
-                    android:textColor="@color/hc_text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:gravity="top|start"
-                    android:hint="Description"
-                    android:minLines="3"
-                    android:textColor="@color/hc_text_primary"
-                    android:textColorHint="@color/hc_text_secondary" />
-
-                <!-- HOBBY TAG label -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:letterSpacing="0.06"
-                    android:text="HOBBY TAG"
-                    android:textAllCaps="true"
-                    android:textColor="@color/hc_text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etHobbyId"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Hobby tag (e.g. chess)"
-                    android:textColor="@color/hc_text_primary"
-                    android:textColorHint="@color/hc_text_secondary" />
-
-                <!-- LOCATION label -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:letterSpacing="0.06"
-                    android:text="LOCATION"
-                    android:textAllCaps="true"
-                    android:textColor="@color/hc_text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <EditText
-                        android:id="@+id/etLocation"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_input"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:hint="No location selected"
-                        android:textColor="@color/hc_text_primary"
-                        android:textColorHint="@color/hc_text_secondary"
-                        android:inputType="none" />
-
-                    <Button
-                        android:id="@+id/btnPickLocation"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Map"
-                        android:backgroundTint="@color/hc_surface"
-                        android:textColor="@color/hc_primary_light"
-                        style="?attr/materialButtonOutlinedStyle"
-                        app:strokeColor="@color/hc_primary" />
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="BASIC INFO"
+                        android:textColor="@color/hc_accent"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEventTitle"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Event title"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:startIconDrawable="@drawable/ic_title"
+                        app:startIconTint="@color/hc_text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords"
+                            android:textColor="@color/colorNavy" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEventDescription"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="Describe your event..."
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:inputType="textMultiLine"
+                            android:minLines="3"
+                            android:textColor="@color/colorNavy" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilHobbyTag"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="Hobby tag (e.g. Photography)"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:startIconDrawable="@drawable/ic_tag"
+                        app:startIconTint="@color/hc_text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etHobbyId"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords"
+                            android:textColor="@color/colorNavy" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
 
-                <!-- DATE & TIME label -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:letterSpacing="0.06"
-                    android:text="DATE &amp; TIME"
-                    android:textAllCaps="true"
-                    android:textColor="@color/hc_text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
 
-                <EditText
-                    android:id="@+id/etEventTimeMillis"
+            <!-- CARD 2 — Date & Time -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:hint="Select date and time"
-                    android:inputType="none"
-                    android:textColor="@color/hc_text_primary"
-                    android:textColorHint="@color/hc_text_secondary" />
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="DATE &amp; TIME"
+                        android:textColor="@color/hc_accent"
+                        android:textSize="13sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- Date Picker Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardDatePicker"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/hc_bg"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:contentDescription="Calendar Icon"
+                                    android:src="@drawable/ic_calendar"
+                                    app:tint="@color/hc_accent" />
+
+                                <TextView
+                                    android:id="@+id/tvSelectedDate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:text="Select Date"
+                                    android:textColor="@color/colorNavy"
+                                    android:textSize="14sp" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <Space
+                            android:layout_width="12dp"
+                            android:layout_height="wrap_content" />
+
+                        <!-- Time Picker Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardTimePicker"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/hc_bg"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:contentDescription="Clock Icon"
+                                    android:src="@drawable/ic_time"
+                                    app:tint="@color/hc_accent" />
+
+                                <TextView
+                                    android:id="@+id/tvSelectedTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:text="Select Time"
+                                    android:textColor="@color/colorNavy"
+                                    android:textSize="14sp" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CARD 3 — Location -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="LOCATION"
+                        android:textColor="@color/hc_accent"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLocation"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter location"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:startIconDrawable="@drawable/ic_location"
+                        app:startIconTint="@color/hc_text_secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etLocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPostalAddress"
+                            android:textColor="@color/colorNavy" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickOnMap"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Pick on Map"
+                        android:textColor="@color/hc_accent"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_map"
+                        app:iconTint="@color/hc_accent"
+                        app:strokeColor="@color/hc_accent" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardMapPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp">
+
+                        <ImageView
+                            android:id="@+id/ivMapPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:contentDescription="Map Thumbnail"
+                            android:scaleType="centerCrop" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CARD 4 — Cover Photo -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="COVER PHOTO"
+                        android:textColor="@color/hc_accent"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardImagePicker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/hc_bg"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/colorLightGray"
+                        app:strokeWidth="2dp">
+
+                        <!-- Default Empty State -->
+                        <LinearLayout
+                            android:id="@+id/layoutPickerDefault"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="32dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:contentDescription="Add Photo Icon"
+                                android:src="@drawable/ic_add_photo"
+                                app:tint="@color/hc_text_secondary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="Add Cover Photo"
+                                android:textColor="@color/hc_text_secondary"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Optional · Tap to select"
+                                android:textColor="@color/colorTextMuted"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <!-- Selected Preview State -->
+                        <FrameLayout
+                            android:id="@+id/layoutPickerPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/ivCoverPreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="180dp"
+                                android:scaleType="centerCrop"
+                                app:shapeAppearanceOverlay="@style/TopRoundedImage" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnChangeCover"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:alpha="0.8"
+                                android:backgroundTint="@color/colorNavy"
+                                android:text="Change"
+                                android:textColor="@color/colorWhite"
+                                android:textSize="12sp"
+                                app:cornerRadius="8dp" />
+
+                        </FrameLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
-    </ScrollView>
 
-    <!-- Sticky bottom Publish button -->
-    <Button
-        android:id="@+id/btnCreateEvent"
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Pinned Sticky Actions bottomBarCreate -->
+    <LinearLayout
+        android:id="@+id/bottomBarCreate"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/ripple_primary_button"
-        android:text="🚀  Publish Meetup"
-        android:textAllCaps="false"
-        android:textColor="@color/hc_button_text_on_primary"
-        android:textSize="15sp"
-        android:textStyle="bold" />
+        android:background="@color/colorWhite"
+        android:elevation="8dp"
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-</FrameLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textColor="@color/hc_text_secondary"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/colorLightGray" />
+
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCreateEvent"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="2"
+            android:backgroundTint="@color/hc_accent"
+            android:text="Create Event"
+            android:textColor="@color/colorWhite"
+            app:cornerRadius="12dp" />
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

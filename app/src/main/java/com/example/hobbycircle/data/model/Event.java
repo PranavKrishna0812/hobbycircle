@@ -11,8 +11,9 @@ public class Event {
     private String hobbyId;
     private String location;
     private String mapQuery;
-    private long eventTimeMillis;
-    private String createdByUserId;
+    private long dateTime; // long timestamp
+    private String creatorId;
+    private String creatorName;
     private List<String> joinedUserIds;
     private String imageUrl;
     private long updatedAtMillis;
@@ -24,8 +25,9 @@ public class Event {
         this.hobbyId = "";
         this.location = "";
         this.mapQuery = "";
-        this.eventTimeMillis = 0L;
-        this.createdByUserId = "";
+        this.dateTime = 0L;
+        this.creatorId = "";
+        this.creatorName = "";
         this.joinedUserIds = new ArrayList<>();
         this.imageUrl = "";
         this.updatedAtMillis = 0L;
@@ -37,8 +39,9 @@ public class Event {
                  String hobbyId,
                  String location,
                  String mapQuery,
-                 long eventTimeMillis,
-                 String createdByUserId,
+                 long dateTime,
+                 String creatorId,
+                 String creatorName,
                  List<String> joinedUserIds,
                  String imageUrl) {
         this.id = id != null ? id : "";
@@ -47,8 +50,9 @@ public class Event {
         this.hobbyId = hobbyId != null ? hobbyId : "";
         this.location = location != null ? location : "";
         this.mapQuery = mapQuery != null ? mapQuery : "";
-        this.eventTimeMillis = Math.max(0L, eventTimeMillis);
-        this.createdByUserId = createdByUserId != null ? createdByUserId : "";
+        this.dateTime = Math.max(0L, dateTime);
+        this.creatorId = creatorId != null ? creatorId : "";
+        this.creatorName = creatorName != null ? creatorName : "";
         this.joinedUserIds = joinedUserIds != null ? joinedUserIds : new ArrayList<>();
         this.imageUrl = imageUrl != null ? imageUrl : "";
         this.updatedAtMillis = 0L;
@@ -102,20 +106,46 @@ public class Event {
         this.mapQuery = mapQuery != null ? mapQuery : "";
     }
 
+    // New Fields Getters & Setters
+    public long getDateTime() {
+        return Math.max(0L, dateTime);
+    }
+
+    public void setDateTime(long dateTime) {
+        this.dateTime = Math.max(0L, dateTime);
+    }
+
+    public String getCreatorId() {
+        return creatorId != null ? creatorId : "";
+    }
+
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId != null ? creatorId : "";
+    }
+
+    public String getCreatorName() {
+        return creatorName != null ? creatorName : "";
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName != null ? creatorName : "";
+    }
+
+    // Backward-compatible delegates for existing usages
     public long getEventTimeMillis() {
-        return Math.max(0L, eventTimeMillis);
+        return getDateTime();
     }
 
     public void setEventTimeMillis(long eventTimeMillis) {
-        this.eventTimeMillis = Math.max(0L, eventTimeMillis);
+        setDateTime(eventTimeMillis);
     }
 
     public String getCreatedByUserId() {
-        return createdByUserId != null ? createdByUserId : "";
+        return getCreatorId();
     }
 
     public void setCreatedByUserId(String createdByUserId) {
-        this.createdByUserId = createdByUserId != null ? createdByUserId : "";
+        setCreatorId(createdByUserId);
     }
 
     public List<String> getJoinedUserIds() {

@@ -1,28 +1,38 @@
 package com.example.hobbycircle.ui.events;
 
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
-import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -30,23 +40,41 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
+public class CreateEventActivity extends AppCompatActivity {
 
-public class CreateEventActivity extends BaseDrawerActivity {
+    private Toolbar toolbarCreate;
+    private LinearProgressIndicator progressStepper;
 
-    private TextView tvCreateEventTitle;
-    private EditText etTitle;
-    private EditText etDescription;
-    private EditText etHobbyId;
-    private EditText etLocation;
-    private EditText etEventTimeMillis;
-    private Button btnCreateEvent;
-    private ImageView ivEventImage;
-    private Button btnAddImage;
-    private Button btnPickLocation;
+    private TextInputLayout tilEventTitle;
+    private TextInputEditText etTitle;
+    private TextInputLayout tilEventDescription;
+    private TextInputEditText etDescription;
+    private TextInputLayout tilHobbyTag;
+    private TextInputEditText etHobbyId;
+
+    private MaterialCardView cardDatePicker;
+    private TextView tvSelectedDate;
+    private MaterialCardView cardTimePicker;
+    private TextView tvSelectedTime;
+
+    private TextInputLayout tilLocation;
+    private TextInputEditText etLocation;
+    private MaterialButton btnPickOnMap;
+    private MaterialCardView cardMapPreview;
+    private ImageView ivMapPreview;
+
+    private MaterialCardView cardImagePicker;
+    private LinearLayout layoutPickerDefault;
+    private FrameLayout layoutPickerPreview;
+    private ImageView ivCoverPreview;
+    private MaterialButton btnChangeCover;
+
+    private MaterialButton btnCancel;
+    private MaterialButton btnCreateEvent;
 
     private EventViewModel eventViewModel;
     private PreferenceManager preferenceManager;
@@ -68,7 +96,6 @@ public class CreateEventActivity extends BaseDrawerActivity {
             new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
-                    ivEventImage.setImageURI(uri);
                     try {
                         InputStream is = getContentResolver().openInputStream(uri);
                         if (is != null) {
@@ -80,7 +107,11 @@ public class CreateEventActivity extends BaseDrawerActivity {
                             }
                             selectedImageBytes = bos.toByteArray();
                             is.close();
-                            btnAddImage.setText(R.string.btn_change_cover_image);
+
+                            layoutPickerDefault.setVisibility(View.GONE);
+                            layoutPickerPreview.setVisibility(View.VISIBLE);
+                            ivCoverPreview.setImageURI(uri);
+
                             coverUploadReady = false;
                             updateSubmitEnabled();
                             eventViewModel.uploadCoverImage(draftEventId, selectedImageBytes);
@@ -103,6 +134,9 @@ public class CreateEventActivity extends BaseDrawerActivity {
 
                     etLocation.setText(address != null ? address : "Selected Location");
                     selectedMapQuery = lat + "," + lng;
+
+                    loadMapPreview(lat, lng);
+                    updateProgress();
                 }
             }
     );
@@ -110,6 +144,7 @@ public class CreateEventActivity extends BaseDrawerActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create_event);
 
         preferenceManager = new PreferenceManager(this);
 
@@ -119,40 +154,60 @@ public class CreateEventActivity extends BaseDrawerActivity {
                     || !editingEventId.isEmpty();
         }
 
-        initViews();
-        setupViewModel();
-        setupTimePicker();
-        btnCreateEvent.setOnClickListener(v -> saveEvent());
-
         draftEventId = editMode ? editingEventId : UUID.randomUUID().toString();
 
+        initViews();
+        setupViewModel();
+        setupActions();
+
         if (editMode && !editingEventId.isEmpty()) {
-            setDrawerTitle(getString(R.string.edit_meetup));
-            if (tvCreateEventTitle != null) {
-                tvCreateEventTitle.setText(R.string.edit_meetup);
-            }
-            btnCreateEvent.setText(R.string.save_meetup);
+            toolbarCreate.setTitle("Edit Event");
+            btnCreateEvent.setText("Save Event");
             eventViewModel.loadEventById(editingEventId);
+        } else {
+            toolbarCreate.setTitle("Create Event");
+            btnCreateEvent.setText("Create Event");
         }
+
+        updateProgress();
     }
 
     private void initViews() {
-        tvCreateEventTitle = findViewById(R.id.tvCreateEventTitle);
-        etTitle = findViewById(R.id.etTitle);
-        etDescription = findViewById(R.id.etDescription);
-        etHobbyId = findViewById(R.id.etHobbyId);
-        etLocation = findViewById(R.id.etLocation);
-        etEventTimeMillis = findViewById(R.id.etEventTimeMillis);
-        btnCreateEvent = findViewById(R.id.btnCreateEvent);
-        ivEventImage = findViewById(R.id.ivEventImage);
-        btnAddImage = findViewById(R.id.btnAddImage);
-        btnPickLocation = findViewById(R.id.btnPickLocation);
+        toolbarCreate = findViewById(R.id.toolbarCreate);
+        progressStepper = findViewById(R.id.progressStepper);
 
-        btnAddImage.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
-        btnPickLocation.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MapPickerActivity.class);
-            mapPickerLauncher.launch(intent);
-        });
+        tilEventTitle = findViewById(R.id.tilEventTitle);
+        etTitle = findViewById(R.id.etTitle);
+        tilEventDescription = findViewById(R.id.tilEventDescription);
+        etDescription = findViewById(R.id.etDescription);
+        tilHobbyTag = findViewById(R.id.tilHobbyTag);
+        etHobbyId = findViewById(R.id.etHobbyId);
+
+        cardDatePicker = findViewById(R.id.cardDatePicker);
+        tvSelectedDate = findViewById(R.id.tvSelectedDate);
+        cardTimePicker = findViewById(R.id.cardTimePicker);
+        tvSelectedTime = findViewById(R.id.tvSelectedTime);
+
+        tilLocation = findViewById(R.id.tilLocation);
+        etLocation = findViewById(R.id.etLocation);
+        btnPickOnMap = findViewById(R.id.btnPickOnMap);
+        cardMapPreview = findViewById(R.id.cardMapPreview);
+        ivMapPreview = findViewById(R.id.ivMapPreview);
+
+        cardImagePicker = findViewById(R.id.cardImagePicker);
+        layoutPickerDefault = findViewById(R.id.layoutPickerDefault);
+        layoutPickerPreview = findViewById(R.id.layoutPickerPreview);
+        ivCoverPreview = findViewById(R.id.ivCoverPreview);
+        btnChangeCover = findViewById(R.id.btnChangeCover);
+
+        btnCancel = findViewById(R.id.btnCancel);
+        btnCreateEvent = findViewById(R.id.btnCreateEvent);
+
+        setSupportActionBar(toolbarCreate);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     private void setupViewModel() {
@@ -164,7 +219,7 @@ public class CreateEventActivity extends BaseDrawerActivity {
                     return;
                 }
                 if (!canModifyEvent(event)) {
-                    Toast.makeText(this, R.string.not_authorized, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "You are not authorized to modify this event.", Toast.LENGTH_SHORT).show();
                     finish();
                     return;
                 }
@@ -175,9 +230,6 @@ public class CreateEventActivity extends BaseDrawerActivity {
 
         eventViewModel.getImageUploadingLiveData().observe(this, uploading -> {
             coverUploadReady = uploading == null || !uploading;
-            if (Boolean.TRUE.equals(uploading)) {
-                coverUploadReady = false;
-            }
             updateSubmitEnabled();
         });
 
@@ -186,6 +238,7 @@ public class CreateEventActivity extends BaseDrawerActivity {
                 existingImageUrl = url;
                 coverUploadReady = true;
                 updateSubmitEnabled();
+                updateProgress();
             }
         });
 
@@ -201,6 +254,40 @@ public class CreateEventActivity extends BaseDrawerActivity {
         });
     }
 
+    private void setupActions() {
+        toolbarCreate.setNavigationOnClickListener(v -> onBackPressed());
+
+        cardDatePicker.setOnClickListener(v -> openDatePicker());
+        cardTimePicker.setOnClickListener(v -> openTimePicker());
+
+        btnPickOnMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MapPickerActivity.class);
+            mapPickerLauncher.launch(intent);
+        });
+
+        View.OnClickListener pickPhotoListener = v -> imagePickerLauncher.launch("image/*");
+        cardImagePicker.setOnClickListener(pickPhotoListener);
+        layoutPickerDefault.setOnClickListener(pickPhotoListener);
+        btnChangeCover.setOnClickListener(pickPhotoListener);
+
+        btnCancel.setOnClickListener(v -> finish());
+        btnCreateEvent.setOnClickListener(v -> saveEvent());
+
+        // Real-time Textwatchers for smooth stepper update
+        TextWatcher stepperWatcher = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                updateProgress();
+            }
+        };
+
+        etTitle.addTextChangedListener(stepperWatcher);
+        etDescription.addTextChangedListener(stepperWatcher);
+        etHobbyId.addTextChangedListener(stepperWatcher);
+        etLocation.addTextChangedListener(stepperWatcher);
+    }
+
     private void populateForm(Event event) {
         etTitle.setText(event.getTitle());
         etDescription.setText(event.getDescription());
@@ -212,16 +299,60 @@ public class CreateEventActivity extends BaseDrawerActivity {
 
         if (selectedEventTimeMillis > 0L) {
             selectedCalendar.setTimeInMillis(selectedEventTimeMillis);
-            String formatted = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-                    .format(new Date(selectedEventTimeMillis));
-            etEventTimeMillis.setText(formatted);
+            
+            String dateFormatted = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date(selectedEventTimeMillis));
+            tvSelectedDate.setText(dateFormatted);
+
+            String timeFormatted = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date(selectedEventTimeMillis));
+            tvSelectedTime.setText(timeFormatted);
+        }
+
+        if (!selectedMapQuery.isEmpty()) {
+            try {
+                String[] parts = selectedMapQuery.split(",");
+                if (parts.length == 2) {
+                    double lat = Double.parseDouble(parts[0].trim());
+                    double lng = Double.parseDouble(parts[1].trim());
+                    loadMapPreview(lat, lng);
+                }
+            } catch (Exception ignored) {}
         }
 
         if (!existingImageUrl.isEmpty()) {
-            ivEventImage.setVisibility(View.VISIBLE);
-            Glide.with(this).load(existingImageUrl).into(ivEventImage);
-            btnAddImage.setText(R.string.btn_change_cover_image);
+            layoutPickerDefault.setVisibility(View.GONE);
+            layoutPickerPreview.setVisibility(View.VISIBLE);
+            Glide.with(this).load(existingImageUrl).into(ivCoverPreview);
         }
+
+        updateProgress();
+    }
+
+    private void updateProgress() {
+        int progress = 0;
+
+        String title = etTitle.getText() != null ? etTitle.getText().toString().trim() : "";
+        String desc = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
+        String hobby = etHobbyId.getText() != null ? etHobbyId.getText().toString().trim() : "";
+        if (!title.isEmpty() && !desc.isEmpty() && !hobby.isEmpty()) {
+            progress += 25;
+        }
+
+        String dateText = tvSelectedDate.getText().toString().trim();
+        String timeText = tvSelectedTime.getText().toString().trim();
+        if (!dateText.equalsIgnoreCase("Select Date") && !timeText.equalsIgnoreCase("Select Time") && selectedEventTimeMillis > 0L) {
+            progress += 25;
+        }
+
+        String location = etLocation.getText() != null ? etLocation.getText().toString().trim() : "";
+        if (!location.isEmpty()) {
+            progress += 25;
+        }
+
+        if (selectedImageBytes != null || !existingImageUrl.isEmpty()) {
+            progress += 25;
+        }
+
+        progressStepper.setProgress(Math.max(25, progress));
     }
 
     private void updateSubmitEnabled() {
@@ -240,95 +371,134 @@ public class CreateEventActivity extends BaseDrawerActivity {
         return userId.equals(event.getCreatedByUserId());
     }
 
-    private void setupTimePicker() {
-        etEventTimeMillis.setOnClickListener(v -> openDatePicker());
-    }
-
     private void openDatePicker() {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                (view, year, month, dayOfMonth) -> {
-                    selectedCalendar.set(Calendar.YEAR, year);
-                    selectedCalendar.set(Calendar.MONTH, month);
-                    selectedCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    openTimePicker();
-                },
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
-        );
-        if (!editMode) {
-            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
-        }
-        datePickerDialog.show();
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date")
+                .setSelection(selectedEventTimeMillis > 0 ? selectedEventTimeMillis : MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            utc.setTimeInMillis(selection);
+
+            selectedCalendar.set(Calendar.YEAR, utc.get(Calendar.YEAR));
+            selectedCalendar.set(Calendar.MONTH, utc.get(Calendar.MONTH));
+            selectedCalendar.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
+
+            selectedEventTimeMillis = selectedCalendar.getTimeInMillis();
+            String formatted = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(selectedCalendar.getTime());
+            tvSelectedDate.setText(formatted);
+            updateProgress();
+        });
+
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
     }
 
     private void openTimePicker() {
-        Calendar now = Calendar.getInstance();
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                this,
-                (view, hourOfDay, minute) -> {
-                    selectedCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                    selectedCalendar.set(Calendar.MINUTE, minute);
-                    selectedCalendar.set(Calendar.SECOND, 0);
-                    selectedCalendar.set(Calendar.MILLISECOND, 0);
+        MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+                .setTimeFormat(android.text.format.DateFormat.is24HourFormat(this) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
+                .setHour(selectedCalendar.get(Calendar.HOUR_OF_DAY))
+                .setMinute(selectedCalendar.get(Calendar.MINUTE))
+                .setTitleText("Select Time")
+                .build();
 
-                    selectedEventTimeMillis = selectedCalendar.getTimeInMillis();
-                    if (!editMode && selectedEventTimeMillis <= System.currentTimeMillis()) {
-                        Toast.makeText(this, "Please select a future date/time.", Toast.LENGTH_SHORT).show();
-                        selectedEventTimeMillis = 0L;
-                        etEventTimeMillis.setText("");
-                        return;
-                    }
+        timePicker.addOnPositiveButtonClickListener(v -> {
+            selectedCalendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+            selectedCalendar.set(Calendar.MINUTE, timePicker.getMinute());
+            selectedCalendar.set(Calendar.SECOND, 0);
+            selectedCalendar.set(Calendar.MILLISECOND, 0);
 
-                    String formatted = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-                            .format(selectedCalendar.getTime());
-                    etEventTimeMillis.setText(formatted);
-                },
-                now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE),
-                false
-        );
-        timePickerDialog.show();
+            selectedEventTimeMillis = selectedCalendar.getTimeInMillis();
+            String formatted = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(selectedCalendar.getTime());
+            tvSelectedTime.setText(formatted);
+            updateProgress();
+        });
+
+        timePicker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+
+    private void loadMapPreview(double lat, double lng) {
+        String key = getMapsApiKey();
+        if (key.isEmpty()) {
+            return;
+        }
+        String url = "https://maps.googleapis.com/maps/api/staticmap?center=" + lat + "," + lng + "&zoom=15&size=400x200&key=" + key;
+        cardMapPreview.setVisibility(View.VISIBLE);
+        Glide.with(this).load(url).placeholder(R.drawable.ic_event_empty).into(ivMapPreview);
+    }
+
+    private String getMapsApiKey() {
+        try {
+            android.content.pm.ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), android.content.pm.PackageManager.GET_META_DATA);
+            android.os.Bundle bundle = ai.metaData;
+            if (bundle != null) {
+                return safe(bundle.getString("com.google.android.geo.API_KEY", ""));
+            }
+        } catch (Exception ignored) {}
+        return "";
     }
 
     private void saveEvent() {
         try {
-            String title = safe(textOf(etTitle));
-            String description = safe(textOf(etDescription));
-            String hobbyId = safe(textOf(etHobbyId));
-            String location = safe(textOf(etLocation));
+            String title = safe(etTitle.getText() != null ? etTitle.getText().toString() : "");
+            String description = safe(etDescription.getText() != null ? etDescription.getText().toString() : "");
+            String hobbyId = safe(etHobbyId.getText() != null ? etHobbyId.getText().toString() : "");
+            String location = safe(etLocation.getText() != null ? etLocation.getText().toString() : "");
             String mapQuery = safe(selectedMapQuery);
 
-            if (title.isEmpty() || description.isEmpty() || hobbyId.isEmpty() || location.isEmpty()) {
-                Toast.makeText(this, "Please fill all required fields.", Toast.LENGTH_SHORT).show();
-                return;
+            boolean hasError = false;
+
+            if (title.isEmpty()) {
+                tilEventTitle.setError("Event title is required");
+                hasError = true;
+            } else {
+                tilEventTitle.setError(null);
+            }
+
+            if (description.isEmpty()) {
+                tilEventDescription.setError("Description is required");
+                hasError = true;
+            } else {
+                tilEventDescription.setError(null);
+            }
+
+            if (hobbyId.isEmpty()) {
+                tilHobbyTag.setError("Hobby tag is required");
+                hasError = true;
+            } else {
+                tilHobbyTag.setError(null);
+            }
+
+            if (location.isEmpty()) {
+                tilLocation.setError("Location is required");
+                hasError = true;
+            } else {
+                tilLocation.setError(null);
             }
 
             if (selectedEventTimeMillis <= 0L) {
-                Toast.makeText(this, "Please select a valid date/time.", Toast.LENGTH_SHORT).show();
-                return;
+                Toast.makeText(this, "Please select a valid date and time.", Toast.LENGTH_SHORT).show();
+                hasError = true;
             }
 
             if (!editMode && selectedEventTimeMillis <= System.currentTimeMillis()) {
-                Toast.makeText(this, "Please select a valid future date/time.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please select a valid future date and time.", Toast.LENGTH_SHORT).show();
+                hasError = true;
+            }
+
+            if (hasError) {
                 return;
             }
 
             String userId = preferenceManager.getUserId();
             if (userId.isEmpty()) {
-                Toast.makeText(this, "Please complete profile first.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please complete your profile first.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (editMode) {
                 if (editingEvent == null) {
-                    Toast.makeText(this, "Event is still loading.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (!canModifyEvent(editingEvent)) {
-                    Toast.makeText(this, R.string.not_authorized, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Event details not loaded yet.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -338,50 +508,38 @@ public class CreateEventActivity extends BaseDrawerActivity {
                 event.setHobbyId(hobbyId);
                 event.setLocation(location);
                 event.setMapQuery(mapQuery.isEmpty() ? (event.getMapQuery().isEmpty() ? location : event.getMapQuery()) : mapQuery);
-                event.setEventTimeMillis(selectedEventTimeMillis);
+                event.setDateTime(selectedEventTimeMillis);
+                event.setCreatorId(userId);
+                event.setCreatorName(preferenceManager.getUserName());
                 if (selectedImageBytes == null && !existingImageUrl.isEmpty()) {
                     event.setImageUrl(existingImageUrl);
                 }
-                eventViewModel.updateEvent(event, selectedImageBytes, preferenceManager.getUserId());
-                return;
-            }
 
-            Event event = new Event();
-            event.setId(draftEventId);
-            event.setTitle(title);
-            event.setDescription(description);
-            event.setHobbyId(hobbyId);
-            event.setLocation(location);
-            event.setMapQuery(mapQuery.isEmpty() ? location : mapQuery);
-            event.setEventTimeMillis(selectedEventTimeMillis);
-            event.setCreatedByUserId(userId);
-            event.setJoinedUserIds(new ArrayList<String>());
-            if (!existingImageUrl.isEmpty()) {
-                event.setImageUrl(existingImageUrl);
-            }
+                eventViewModel.updateEvent(event, selectedImageBytes, userId);
+            } else {
+                Event event = new Event();
+                event.setId(draftEventId);
+                event.setTitle(title);
+                event.setDescription(description);
+                event.setHobbyId(hobbyId);
+                event.setLocation(location);
+                event.setMapQuery(mapQuery.isEmpty() ? location : mapQuery);
+                event.setDateTime(selectedEventTimeMillis);
+                event.setCreatorId(userId);
+                event.setCreatorName(preferenceManager.getUserName());
+                event.setJoinedUserIds(new ArrayList<>());
+                if (!existingImageUrl.isEmpty()) {
+                    event.setImageUrl(existingImageUrl);
+                }
 
-            eventViewModel.createEvent(event, null);
+                eventViewModel.createEvent(event, selectedImageBytes);
+            }
         } catch (Exception e) {
             Toast.makeText(this, "Failed to save event: " + safe(e.getMessage()), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private String textOf(EditText editText) {
-        return editText.getText() != null ? editText.getText().toString() : "";
-    }
-
     private String safe(String value) {
         return value != null ? value.trim() : "";
-    }
-
-    @Override
-    protected int contentLayoutResId() {
-        return R.layout.activity_create_event;
-    }
-
-    @androidx.annotation.NonNull
-    @Override
-    protected String getDefaultTitle() {
-        return editMode ? getString(R.string.edit_meetup) : "Create Event";
     }
 }

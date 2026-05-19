@@ -24,8 +24,9 @@ public final class DataMappers {
         entity.setHobbyId(safe(event.getHobbyId()));
         entity.setLocation(safe(event.getLocation()));
         entity.setMapQuery(safe(event.getMapQuery()));
-        entity.setEventTimeMillis(event.getEventTimeMillis());
-        entity.setCreatedByUserId(safe(event.getCreatedByUserId()));
+        entity.setDateTime(event.getDateTime());
+        entity.setCreatorId(safe(event.getCreatorId()));
+        entity.setCreatorName(safe(event.getCreatorName()));
         entity.setJoinedUserIdsCsv(toCsv(event.getJoinedUserIds()));
         entity.setImageUrl(safe(event.getImageUrl()));
         entity.setUpdatedAtMillis(event.getUpdatedAtMillis() > 0L
@@ -45,8 +46,9 @@ public final class DataMappers {
         event.setHobbyId(safe(entity.getHobbyId()));
         event.setLocation(safe(entity.getLocation()));
         event.setMapQuery(safe(entity.getMapQuery()));
-        event.setEventTimeMillis(entity.getEventTimeMillis());
-        event.setCreatedByUserId(safe(entity.getCreatedByUserId()));
+        event.setDateTime(entity.getDateTime());
+        event.setCreatorId(safe(entity.getCreatorId()));
+        event.setCreatorName(safe(entity.getCreatorName()));
         event.setJoinedUserIds(fromCsv(entity.getJoinedUserIdsCsv()));
         event.setImageUrl(safe(entity.getImageUrl()));
         event.setUpdatedAtMillis(entity.getUpdatedAtMillis());

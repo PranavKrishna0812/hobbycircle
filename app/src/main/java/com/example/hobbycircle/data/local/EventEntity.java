@@ -16,8 +16,9 @@ public class EventEntity {
     private String hobbyId;
     private String location;
     private String mapQuery;
-    private long eventTimeMillis;
-    private String createdByUserId;
+    private long dateTime; // long timestamp
+    private String creatorId;
+    private String creatorName;
     private String joinedUserIdsCsv;
     private long updatedAtMillis;
     private String imageUrl;
@@ -29,7 +30,9 @@ public class EventEntity {
         this.hobbyId = "";
         this.location = "";
         this.mapQuery = "";
-        this.createdByUserId = "";
+        this.dateTime = 0L;
+        this.creatorId = "";
+        this.creatorName = "";
         this.joinedUserIdsCsv = "";
         this.updatedAtMillis = 0L;
         this.imageUrl = "";
@@ -84,20 +87,46 @@ public class EventEntity {
         this.mapQuery = mapQuery != null ? mapQuery : "";
     }
 
+    // New Fields Getters & Setters
+    public long getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(long dateTime) {
+        this.dateTime = Math.max(0L, dateTime);
+    }
+
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId != null ? creatorId : "";
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName != null ? creatorName : "";
+    }
+
+    // Backward-compatible delegates for existing usages
     public long getEventTimeMillis() {
-        return eventTimeMillis;
+        return getDateTime();
     }
 
     public void setEventTimeMillis(long eventTimeMillis) {
-        this.eventTimeMillis = Math.max(0L, eventTimeMillis);
+        setDateTime(eventTimeMillis);
     }
 
     public String getCreatedByUserId() {
-        return createdByUserId;
+        return getCreatorId();
     }
 
     public void setCreatedByUserId(String createdByUserId) {
-        this.createdByUserId = createdByUserId != null ? createdByUserId : "";
+        setCreatorId(createdByUserId);
     }
 
     public String getJoinedUserIdsCsv() {

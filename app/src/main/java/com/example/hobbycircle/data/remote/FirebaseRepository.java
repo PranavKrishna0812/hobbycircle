@@ -375,6 +375,9 @@ public class FirebaseRepository {
         map.put(FirestoreFields.EVENT_IMAGE_URL, safe(event.getImageUrl()));
         map.put(FirestoreFields.EVENT_UPDATED_AT,
                 event.getUpdatedAtMillis() > 0L ? event.getUpdatedAtMillis() : System.currentTimeMillis());
+        map.put("dateTime", event.getDateTime());
+        map.put("creatorId", safe(event.getCreatorId()));
+        map.put("creatorName", safe(event.getCreatorName()));
         return map;
     }
 
@@ -401,6 +404,14 @@ public class FirebaseRepository {
 
         List<String> joined = (List<String>) snapshot.get(FirestoreFields.EVENT_JOINED_USER_IDS);
         event.setJoinedUserIds(joined != null ? joined : new ArrayList<>());
+
+        Long dateTimeVal = snapshot.getLong("dateTime");
+        event.setDateTime(dateTimeVal != null ? dateTimeVal : event.getEventTimeMillis());
+        event.setCreatorId(safe(snapshot.getString("creatorId")));
+        if (event.getCreatorId().isEmpty()) {
+            event.setCreatorId(event.getCreatedByUserId());
+        }
+        event.setCreatorName(safe(snapshot.getString("creatorName")));
         return event;
     }
 
