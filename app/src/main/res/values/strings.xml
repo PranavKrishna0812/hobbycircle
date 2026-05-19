@@ -3,7 +3,7 @@
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_FROM_GOOGLE_SERVICES</string>
 
     <string-array name="admin_emails">
-        <!-- <item>admin@example.com</item> -->
+        <item>pranavpower609@gmail.com</item>
     </string-array>
 
     <!-- Navigation -->
