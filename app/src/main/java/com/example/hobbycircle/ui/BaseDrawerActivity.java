@@ -70,6 +70,10 @@ public abstract class BaseDrawerActivity extends AppCompatActivity
         return drawerLayout;
     }
 
+    protected NavigationView getNavigationView() {
+        return navigationView;
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull android.view.MenuItem item) {
         int id = item.getItemId();

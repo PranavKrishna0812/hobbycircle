@@ -9,27 +9,20 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
-import com.example.hobbycircle.ui.auth.ProfileActivity;
+import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.ui.details.EventDetailActivity;
 import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.ui.events.EventAdapter;
-import com.example.hobbycircle.ui.admin.AdminEventsActivity;
 import com.example.hobbycircle.utils.Constants;
-import com.example.hobbycircle.utils.DrawerMenuHelper;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -37,13 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class HomeActivity extends AppCompatActivity implements
-        EventAdapter.OnEventClickListener,
-        NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends BaseDrawerActivity implements EventAdapter.OnEventClickListener {
 
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private Toolbar toolbarHome;
     private TextView tvGreeting;
     private TextView tvEventCount;
     private RecyclerView rvJoinedEvents;
@@ -60,7 +48,8 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        // BaseDrawerActivity will handle setContentView(R.layout.activity_base_drawer)
+        // and inflating contentLayoutResId()
 
         preferenceManager = new PreferenceManager(this);
 
@@ -74,24 +63,12 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     private void initViews() {
-        drawerLayout = findViewById(R.id.drawerLayout);
-        navigationView = findViewById(R.id.navigationView);
-        toolbarHome = findViewById(R.id.toolbarHome);
         tvGreeting = findViewById(R.id.tvGreeting);
         tvEventCount = findViewById(R.id.tvEventCount);
         rvJoinedEvents = findViewById(R.id.rvJoinedEvents);
         emptyState = findViewById(R.id.emptyState);
         btnBrowseNearby = findViewById(R.id.btnBrowseNearby);
         fabCreateEvent = findViewById(R.id.fabCreateEvent);
-
-        setSupportActionBar(toolbarHome);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_more);
-        }
-
-        navigationView.setNavigationItemSelectedListener(this);
-        DrawerMenuHelper.applyRoleVisibility(navigationView, preferenceManager.isAdmin());
     }
 
     private void setupRecycler() {
@@ -116,8 +93,6 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     private void setupClicks() {
-        toolbarHome.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
         fabCreateEvent.setOnClickListener(v ->
                 startActivity(new Intent(this, CreateEventActivity.class)));
 
@@ -146,21 +121,22 @@ public class HomeActivity extends AppCompatActivity implements
 
         tvGreeting.setText(String.format("Good morning, %s 👋", displayName));
 
-        View headerView = navigationView.getHeaderView(0);
-        if (headerView != null) {
-            TextView tvUserInitial = headerView.findViewById(R.id.tvUserInitial);
-            TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
-            TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
+        if (getNavigationView() != null) {
+            View headerView = getNavigationView().getHeaderView(0);
+            if (headerView != null) {
+                TextView tvUserInitial = headerView.findViewById(R.id.tvUserInitial);
+                TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
+                TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
 
-            if (tvHeaderName != null) tvHeaderName.setText(displayName);
-            if (tvHeaderEmail != null) tvHeaderEmail.setText(displayEmail);
-            if (tvUserInitial != null && !displayName.isEmpty()) {
-                tvUserInitial.setText(String.valueOf(displayName.charAt(0)).toUpperCase());
+                if (tvHeaderName != null) tvHeaderName.setText(displayName);
+                if (tvHeaderEmail != null) tvHeaderEmail.setText(displayEmail);
+                if (tvUserInitial != null && !displayName.isEmpty()) {
+                    tvUserInitial.setText(String.valueOf(displayName.charAt(0)).toUpperCase());
+                }
             }
         }
     }
 
-    /** Home feed: events current user has accepted (joined). */
     private void showAcceptedOnly() {
         String currentUserId = preferenceManager.getUserId();
 
@@ -206,42 +182,21 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull android.view.MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-            // Already on home, just close drawer
-        } else if (id == R.id.nav_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
-        } else if (id == R.id.nav_nearby_events) {
-            startActivity(new Intent(this, NearbyEventsActivity.class));
-        } else if (id == R.id.nav_create_event) {
-            startActivity(new Intent(this, CreateEventActivity.class));
-        } else if (id == R.id.nav_manage_events) {
-            if (preferenceManager.isAdmin()) {
-                startActivity(new Intent(this, AdminEventsActivity.class));
-            }
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         renderHeaderAndGreeting();
-        DrawerMenuHelper.applyRoleVisibility(navigationView, preferenceManager.isAdmin());
         eventViewModel.loadEvents();
     }
 
     @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+    protected int contentLayoutResId() {
+        return R.layout.activity_home;
+    }
+
+    @NonNull
+    @Override
+    protected String getDefaultTitle() {
+        return "Home";
     }
 
     private String safe(String s) {

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
 import com.example.hobbycircle.data.model.User;
+import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.ui.details.EventDetailActivity;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
@@ -37,9 +39,8 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileActivity extends AppCompatActivity implements CompactEventAdapter.OnCompactEventClickListener {
+public class ProfileActivity extends BaseDrawerActivity implements CompactEventAdapter.OnCompactEventClickListener {
 
-    private Toolbar toolbarProfile;
     private TextView tvAvatarInitial;
     private ImageView ivEditAvatar;
     private TextView tvProfileName;
@@ -70,7 +71,6 @@ public class ProfileActivity extends AppCompatActivity implements CompactEventAd
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
 
         preferenceManager = new PreferenceManager(this);
 
@@ -90,7 +90,6 @@ public class ProfileActivity extends AppCompatActivity implements CompactEventAd
     }
 
     private void initViews() {
-        toolbarProfile = findViewById(R.id.toolbarProfile);
         tvAvatarInitial = findViewById(R.id.tvAvatarInitial);
         ivEditAvatar = findViewById(R.id.ivEditAvatar);
         tvProfileName = findViewById(R.id.tvProfileName);
@@ -111,12 +110,6 @@ public class ProfileActivity extends AppCompatActivity implements CompactEventAd
 
         btnLogout = findViewById(R.id.btnLogout);
         fabSaveProfile = findViewById(R.id.fabSaveProfile);
-
-        setSupportActionBar(toolbarProfile);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
 
         rvCreatedEvents.setLayoutManager(new LinearLayoutManager(this));
         compactEventAdapter = new CompactEventAdapter(new ArrayList<>(), this);
@@ -148,8 +141,6 @@ public class ProfileActivity extends AppCompatActivity implements CompactEventAd
     }
 
     private void setupActions() {
-        toolbarProfile.setNavigationOnClickListener(v -> onBackPressed());
-
         // Add hobby on Done IME action
         etAddHobby.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
@@ -291,6 +282,17 @@ public class ProfileActivity extends AppCompatActivity implements CompactEventAd
         Intent i = new Intent(this, EventDetailActivity.class);
         i.putExtra(Constants.EXTRA_EVENT_ID, event.getId());
         startActivity(i);
+    }
+
+    @Override
+    protected int contentLayoutResId() {
+        return R.layout.activity_profile;
+    }
+
+    @NonNull
+    @Override
+    protected String getDefaultTitle() {
+        return "Profile";
     }
 
     private String safe(String value) {

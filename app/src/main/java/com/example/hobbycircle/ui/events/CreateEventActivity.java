@@ -14,14 +14,14 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
+import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.utils.Constants;
 import com.example.hobbycircle.utils.PreferenceManager;
 import com.example.hobbycircle.viewmodel.EventViewModel;
@@ -44,9 +44,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
-public class CreateEventActivity extends AppCompatActivity {
+public class CreateEventActivity extends BaseDrawerActivity {
 
-    private Toolbar toolbarCreate;
     private LinearProgressIndicator progressStepper;
 
     private TextInputLayout tilEventTitle;
@@ -144,7 +143,6 @@ public class CreateEventActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_event);
 
         preferenceManager = new PreferenceManager(this);
 
@@ -161,11 +159,11 @@ public class CreateEventActivity extends AppCompatActivity {
         setupActions();
 
         if (editMode && !editingEventId.isEmpty()) {
-            toolbarCreate.setTitle("Edit Event");
+            setDrawerTitle("Edit Event");
             btnCreateEvent.setText("Save Event");
             eventViewModel.loadEventById(editingEventId);
         } else {
-            toolbarCreate.setTitle("Create Event");
+            setDrawerTitle("Create Event");
             btnCreateEvent.setText("Create Event");
         }
 
@@ -173,7 +171,6 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        toolbarCreate = findViewById(R.id.toolbarCreate);
         progressStepper = findViewById(R.id.progressStepper);
 
         tilEventTitle = findViewById(R.id.tilEventTitle);
@@ -202,12 +199,6 @@ public class CreateEventActivity extends AppCompatActivity {
 
         btnCancel = findViewById(R.id.btnCancel);
         btnCreateEvent = findViewById(R.id.btnCreateEvent);
-
-        setSupportActionBar(toolbarCreate);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
     }
 
     private void setupViewModel() {
@@ -255,8 +246,6 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void setupActions() {
-        toolbarCreate.setNavigationOnClickListener(v -> onBackPressed());
-
         cardDatePicker.setOnClickListener(v -> openDatePicker());
         cardTimePicker.setOnClickListener(v -> openTimePicker());
 
@@ -537,6 +526,17 @@ public class CreateEventActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "Failed to save event: " + safe(e.getMessage()), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected int contentLayoutResId() {
+        return R.layout.activity_create_event;
+    }
+
+    @NonNull
+    @Override
+    protected String getDefaultTitle() {
+        return "Create Event";
     }
 
     private String safe(String value) {

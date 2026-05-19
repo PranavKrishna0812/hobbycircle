@@ -9,15 +9,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hobbycircle.R;
 import com.example.hobbycircle.data.model.Event;
+import com.example.hobbycircle.ui.BaseDrawerActivity;
 import com.example.hobbycircle.ui.details.EventDetailActivity;
 import com.example.hobbycircle.ui.events.CreateEventActivity;
 import com.example.hobbycircle.ui.events.EventAdapter;
@@ -32,9 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class NearbyEventsActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
+public class NearbyEventsActivity extends BaseDrawerActivity implements EventAdapter.OnEventClickListener {
 
-    private Toolbar toolbarNearby;
     private EditText etSearch;
     private ImageView ivClearSearch;
     private ChipGroup cgHobbies;
@@ -51,7 +50,6 @@ public class NearbyEventsActivity extends AppCompatActivity implements EventAdap
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nearby_events);
 
         preferenceManager = new PreferenceManager(this);
 
@@ -64,19 +62,12 @@ public class NearbyEventsActivity extends AppCompatActivity implements EventAdap
     }
 
     private void initViews() {
-        toolbarNearby = findViewById(R.id.toolbarNearby);
         etSearch = findViewById(R.id.etSearch);
         ivClearSearch = findViewById(R.id.ivClearSearch);
         cgHobbies = findViewById(R.id.cgHobbies);
         rvNearbyEvents = findViewById(R.id.rvNearbyEvents);
         emptyState = findViewById(R.id.emptyState);
         fabCreate = findViewById(R.id.fabCreate);
-
-        setSupportActionBar(toolbarNearby);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
     }
 
     private void setupRecycler() {
@@ -101,8 +92,6 @@ public class NearbyEventsActivity extends AppCompatActivity implements EventAdap
     }
 
     private void setupListeners() {
-        toolbarNearby.setNavigationOnClickListener(v -> finish());
-
         fabCreate.setOnClickListener(v ->
                 startActivity(new Intent(this, CreateEventActivity.class)));
 
@@ -196,6 +185,17 @@ public class NearbyEventsActivity extends AppCompatActivity implements EventAdap
     protected void onResume() {
         super.onResume();
         eventViewModel.loadEvents();
+    }
+
+    @Override
+    protected int contentLayoutResId() {
+        return R.layout.activity_nearby_events;
+    }
+
+    @NonNull
+    @Override
+    protected String getDefaultTitle() {
+        return "Discover Events";
     }
 
     private String safe(String s) {
