@@ -101,6 +101,28 @@ public class UserRepository {
         });
     }
 
+    public void updateProfile(String name, String location, java.util.List<String> hobbies, @NonNull ResultCallback<User> callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            callback.onError("No authenticated user session.");
+            return;
+        }
+        String uid = currentUser.getUid();
+        String email = safe(currentUser.getEmail());
+        String role = preferenceManager.getUserRole();
+
+        User user = new User(
+                uid,
+                safe(name),
+                email,
+                role,
+                safe(location),
+                "",
+                hobbies != null ? hobbies : new java.util.ArrayList<>()
+        );
+        saveUserProfile(user, callback);
+    }
+
     public String resolveAndPersistRole(FirebaseUser firebaseUser, String firestoreRole) {
         String email = firebaseUser != null ? safe(firebaseUser.getEmail()) : "";
         String role = UserRoleUtil.resolveRole(appContext, email, firestoreRole);
